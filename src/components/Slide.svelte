@@ -18,7 +18,7 @@
 
 
     onMount(() => {
-        socket = new WebSocket("ws://localhost:8080");
+        socket = new WebSocket("ws://165.232.45.93:8080");
         
         socket.addEventListener("open", function(event){
             connectStatus = true;
