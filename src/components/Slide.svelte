@@ -18,16 +18,16 @@
 
 
     onMount(() => {
-        socket = new WebSocket("ws://localhost:8080");
+        socket = new WebSocket("ws://192.168.1.20:8080");
         socket.addEventListener("open", function(event){
             connectStatus = true;
         });
         socket.addEventListener("message", (m) => {
             // parse message
-            console.log(m);
             data = JSON.parse(m.data);
             a = data.a;
             b = data.b;
+            updateFreq();
         })
          
         // Tone Generator Stuff
@@ -40,11 +40,15 @@
     setInterval(() => {
     }, 1000);
 
+    function updateFreq() {
+        osc1.set({frequency: a});
+        osc2.set({frequency: b});
+    }
+
     function rangeHandler() {
         data.a = a;
         data.b = b;
-        osc1.set({frequency: a});
-        osc2.set({frequency: b});
+        updateFreq();
         socket.send(JSON.stringify(data));
     }
 
