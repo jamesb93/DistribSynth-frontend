@@ -1,10 +1,13 @@
 <script>
 	export let name;
 	import Slide from "./components/Slide.svelte"
+	import Users from "./components/Users.svelte"
 </script>
 
 <main>
 	<Slide />
+	<br>
+	<Users />
 </main>
 
 <style>

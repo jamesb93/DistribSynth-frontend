@@ -4,8 +4,8 @@
 
     // Socket Stuff
     let data = {};
-    let a = 220;
-    let b = 400;
+    let a;
+    let b;
     let connectStatus = false;
     let socket;
 
@@ -18,7 +18,7 @@
 
 
     onMount(() => {
-        socket = new WebSocket("ws://165.232.45.93:8080");
+        socket = new WebSocket("ws://192.168.1.20:8080");
         
         socket.addEventListener("open", function(event){
             connectStatus = true;
@@ -38,19 +38,19 @@
 
     })
 
-    setInterval(() => {
-    }, 1000);
-
     function updateFreq() {
         osc1.set({frequency: a});
         osc2.set({frequency: b});
     }
 
-    function rangeHandler() {
-        data.a = a;
-        data.b = b;
+    function aHandler() {
         updateFreq();
-        socket.send(JSON.stringify(data));
+        socket.send(["a", a]);
+    }
+
+    function bHandler() {
+        updateFreq();
+        socket.send(["b", b]);
     }
 
     function ctxStart() {
@@ -98,12 +98,12 @@
 
 <label>
     {a}
-	<input type=range bind:value={a} min=30 max=5000 on:input={rangeHandler}>
+	<input type=range bind:value={a} min=30 max=5000 on:input={aHandler}>
 </label>
 <br>
 <label>
     {b}
-	<input type=range bind:value={b} min=30 max=5000 on:input={rangeHandler}>
+	<input type=range bind:value={b} min=30 max=5000 on:input={bHandler}>
 </label>
 
 <br>
