@@ -31,3 +31,18 @@ socket.addEventListener("message", (m) => {
         b.set(msg.b);
     }
 });
+
+
+
+// Subscriptions
+// a.subscribe(value => {
+//     if (socket.readyState === 1) {
+//         socket.send(["a", value])
+//     }
+// });
+
+// b.subscribe(value => {
+//     if (socket.readyState === 1) {
+//         socket.send(["b", value])
+//     }
+// });
