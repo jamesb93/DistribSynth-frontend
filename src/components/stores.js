@@ -22,7 +22,6 @@ socket.addEventListener("open", () => {
 socket.addEventListener("message", (m) => {
     // Parse the message
     let msg = JSON.parse(m.data);
-    console.log('received message')
     if (msg.type === "users") {
         connections.set(msg.connections)
     }
@@ -32,6 +31,8 @@ socket.addEventListener("message", (m) => {
         b.set(msg.b);
     }
 });
+
+
 
 // Subscriptions
 // a.subscribe(value => {
