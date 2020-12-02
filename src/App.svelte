@@ -1,9 +1,22 @@
 <script>
 	export let name;
 	import Slide from "./components/Slide.svelte"
+	import { connections, socket } from "./components/stores.js"
 
-	import { connections } from "./components/stores.js"
+	//
+	function beforeUnload() {
+	  // Cancel the event as stated by the standard.
+	  // more compatibility
+	  socket.close();
+	  return '...';
+	}
 </script>
+
+
+
+  
+  
+  <svelte:window on:beforeunload|preventDefault={beforeUnload}/>
 
 <main>
 	{$connections} are currently connected.
