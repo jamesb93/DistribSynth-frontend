@@ -5,10 +5,7 @@
 
 	//
 	function beforeUnload() {
-	  // Cancel the event as stated by the standard.
-	  // more compatibility
-	  socket.close();
-	  return '...';
+		socket.close();
 	}
 </script>
 
