@@ -7,27 +7,26 @@
     let loaded = false;
     let ctxStatus = false;
     let playing = false;
-    let osc1;
-    let osc2;
-    
-    onMount(() => {
-        // Tone Generator Stuff
-        loaded = true;
-        osc1 = new Tone.Oscillator($a, "sine").toDestination();
-        osc2 = new Tone.Oscillator($b, "sawtooth").toDestination();
-    })
+    // let osc1;
+    // let osc2;
+
+    let osc1 = new Tone.Oscillator($a, "sine").toDestination();
+    let osc2 = new Tone.Oscillator($b, "sawtooth").toDestination();
+
+    $: $a, osc1.set({frequency: $a})
+    $: $b, osc2.set({frequency: $b})
+
+    onMount(() => {loaded=true})
     
     const aHandler = () => {
         socket.send(["a", $a])
-        osc1.set({frequency: $a})
     }
     
     const bHandler = () => {
         socket.send(["b", $b])
-        osc2.set({frequency: $b})
     }
     
-    function ctxStart() {
+    const ctxStart=()=> {
         if (!ctxStatus) {
             Tone.start();
             ctxStatus = true;
