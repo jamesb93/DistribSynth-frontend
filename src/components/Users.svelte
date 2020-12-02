@@ -1,24 +1,9 @@
 <script>
-    import { onMount } from "svelte";
+    import { users, socket } from "./stores.js"
 
     let name = 'anon';
-    let names = [];
-    let socket;
-    let data;
 
-    onMount(() => {
-        socket = new WebSocket("ws://192.168.1.20:8080");
-        socket.addEventListener("message", (m) => {
-            let d = JSON.parse(m.data).names;
-            names = [];
-            console.log(d);
-            for (let key in d) {
-                names.push(d[key]);
-            }
-        })
-    })
-
-    function setName() {
+    const setName = () => {
         socket.send(["name", name]);
     }
 
@@ -26,7 +11,7 @@
 </script>
 <br>
 <input type="text" bind:value={name} />
-<button on:click={setName}>
+<button on:click={setName} on:>
     Set Name
 </button>
 
@@ -35,8 +20,8 @@
 You are {name}
 <br>
 
-{#each names as name}
-    {name}
+{#each $users as user}
+    {user}
     <br>
 {/each}
 
@@ -44,13 +29,11 @@ You are {name}
     button {
         border: 1px outset blue;
         background-color: lightBlue;
-        height:25px;
-        width:120px;
         cursor:pointer;
     }
 
     button:hover {
-        background-color: blue;
+        background-color: rgb(181, 181, 181);
         color:white;
     }
 </style>

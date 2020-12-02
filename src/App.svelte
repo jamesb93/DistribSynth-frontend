@@ -1,13 +1,15 @@
 <script>
 	export let name;
 	import Slide from "./components/Slide.svelte"
-	import Users from "./components/Users.svelte"
+
+	import { connections } from "./components/stores.js"
 </script>
 
 <main>
+	{$connections} are currently connected.
+	<br>
 	<Slide />
 	<br>
-	<Users />
 </main>
 
 <style>
