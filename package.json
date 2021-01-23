@@ -19,9 +19,6 @@
   "dependencies": {
     "global": "^4.4.0",
     "sirv-cli": "^1.0.0",
-    "socket.io": "^3.0.3",
-    "socket.io-client": "^3.0.3",
-    "svelte-range-slider-pips": "^1.5.0",
     "tone": "^14.7.58",
     "ws": "^7.4.0"
   }

@@ -1,0 +1,1 @@
+rsync -a /root/front/public/build/ /var/www/distrib.xyz/html
