@@ -13,7 +13,7 @@ export const connections = writable(0);
 export const users = writable([]);
 
 //Sockets
-export const socket = new WebSocket("ws://192.168.1.20:8080");
+export const socket = new WebSocket("ws://127.0.0.1:8080");
 
 socket.addEventListener("open", () => {
     connectStatus.set(true);

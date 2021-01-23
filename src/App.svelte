@@ -1,25 +1,17 @@
 <script>
 	export let name;
-	import Slide from "./components/Slide.svelte"
-	import { connections, socket } from "./components/stores.js"
+	import Grid from "./components/Grid.svelte"
+	import { connections } from "./components/stores.js"
 
-	//
-	function beforeUnload() {
-		socket.close();
-	}
 </script>
-
-
-
-  
-  
-  <svelte:window on:beforeunload|preventDefault={beforeUnload}/>
 
 <main>
 	{$connections} are currently connected.
 	<br>
-	<Slide />
 	<br>
+	<Grid />
+
+
 </main>
 
 <style>
