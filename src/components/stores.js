@@ -1,5 +1,7 @@
 import { writable } from 'svelte/store';
-
+// Development Toggle
+let socketAddr = "wss://8f43.xyz:8080" // Live
+let socketAddr = "ws://localhost:8080" // Local
 // Grid
 export const grid = writable({});
 export const bpm  = writable(120);
@@ -13,7 +15,7 @@ export const connections = writable(0);
 export const users = writable([]);
 
 //Sockets
-export const socket = new WebSocket("wss://8f43.xyz:8080");
+export const socket = new WebSocket(socketAddr);
 
 socket.addEventListener("open", () => {
     connectStatus.set(true);
