@@ -35,7 +35,7 @@
     }
 
     .emphasis {
-        border-color: red    
+        border-color: rgb(255, 174, 0)    
     }
 </style>
 

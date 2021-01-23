@@ -1,9 +1,9 @@
 import { writable } from 'svelte/store';
 
-// Sliders
-export const a = writable(220);
-export const b = writable(440);
-
+// Grid
+export const grid = writable({});
+export const bpm  = writable(120);
+export const play = writable(false);
 // State
 let data = {};
 export const connectStatus = writable(false);
@@ -26,8 +26,8 @@ socket.addEventListener("message", (m) => {
         connections.set(msg.connections)
     }
     if (msg.type === "data") {
-        console.log(msg.a);
-        a.set(msg.a);
-        b.set(msg.b);
+        grid.set(msg.grid);
+        bpm.set(msg.bpm);
+        play.set(msg.play);
     }
 });

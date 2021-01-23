@@ -1,52 +1,57 @@
 <script>
 	import Cell from "./Cell.svelte"
+    import { play, grid, bpm, socket } from "../components/stores.js";
     import * as Tone from "tone"
-    let grid = []
-    let numSteps = 10;
-    const updateGrid = () => {
-        grid = [];
-        for (var i=0; i < numSteps; i++) {
-            grid.push({state: false, emph: false})
-        }
-    }
-    updateGrid();
 
-    $: numSteps, updateGrid();
+    // let numSteps = 10;
+    // const updateGrid = () => {
+    //     for (var i=0; i < numSteps; i++) {
+    //         grid[i] = {state: false, emph: false}
+    //     }
+    // }
+    // updateGrid();
+
+    // $: numSteps, updateGrid();
+
+    $: if ($play === true) {startLoop()} else {stopLoop()}
 
 
-    let bpm = 120;
-    $: Tone.Transport.bpm.value = bpm;
+    $: Tone.Transport.bpm.value = $bpm;
     let pos = 0; // Init a grid position
 
-
     const handleClick=(idx)=>{
-        grid[idx].state = !grid[idx].state
+        $grid[idx].state = !$grid[idx].state;
+        socket.send(["grid", JSON.stringify($grid)])
     }
 
     const synth = new Tone.PluckSynth().toDestination();
     
     const loop = new Tone.Loop((time) => {
-        let d = Math.random() * 7000;
-        synth.set({
-            damping: d
-        });
         updateEmph();
-        if (grid[pos].state) {
+        if ($grid[pos].state) {
             synth.triggerAttackRelease("C4", "0.1", time);
         }
-        // Increment Loop
+
         pos += 1;
-        pos = pos % grid.length;
+        pos = pos % $grid.length;
     }, "16n").start(0);
 
 
     const startLoop = () => {
+        socket.send(["play", JSON.stringify(true)])
+        play.set(true);
         Tone.start();
         Tone.Transport.start();
         loop.start();
     }
 
     const stopLoop = () => {
+        console.log(socket.readyState)
+        if (socket.readyState === 1) {
+            play.set(false);
+            socket.send(["play", JSON.stringify(false)])
+        }
+        // socket.send(["play", false])
         loop.stop();
         Tone.Transport.stop();
     }
@@ -57,38 +62,43 @@
     }
 
     const updateEmph = () => {
-        for (var i=0; i < grid.length; i++) {
+        for (var i=0; i < $grid.length; i++) {
             if (i === pos) {
-                grid[i].emph = true;
+                $grid[i].emph = true;
             } else {
-                grid[i].emph = false;
+                $grid[i].emph = false;
             }
         }
     }
 
-
-
-
+    const sendBpm = () => {
+        socket.send(['bpm', $bpm])
+    }
 
 </script>
+
+
 <button on:click={startLoop}>start</button>
 <button on:click={stopLoop}>stop</button>
 <button on:click={reset}>reset</button>
 
-
 <br>
-
-{bpm} <input type="range" min="60" max="300" bind:value={bpm} class="slider">
-
+{$play}
+{$bpm} <input type="range" min="60" max="300" on:input={sendBpm} bind:value={$bpm} class="slider">
 
 <div class="container">
-    {#each grid as cell, idx}
-        <Cell 
-        toggleFun = {()=>handleClick(idx)}
-        selected = {cell.state}
-        emph = {cell.emph}
-        />
-    {/each}
+    {#if $grid.length > 0}
+        {#each $grid as cell, idx}
+            <Cell 
+            toggleFun = {()=>handleClick(idx)}
+            selected = {cell.state}
+            emph = {cell.emph}
+            />
+        {/each}
+    {:else}
+        Loading...
+    {/if}
+
 </div>
 
 <style>
