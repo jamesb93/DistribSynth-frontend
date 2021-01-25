@@ -1,14 +1,19 @@
 <script>
-	export let name;
-	import Grid from "./components/Grid.svelte"
-	import { connections } from "./components/stores.js"
+	import Grid from "./components/Grid.svelte";
+    import { socket } from "./components/stores.js";
+	let numUsers = 0;
 
+	socket.on('numUsers', (e) => {
+		numUsers = e
+		console.log('a new user joined')
+	});
 </script>
 
 <main>
-	{$connections} are currently connected.
+	{numUsers} are currently connected.
 	<br>
 	<br>
+	<!-- <Foo /> -->
 	<Grid />
 
 
