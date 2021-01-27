@@ -1,13 +1,13 @@
 <script>
 	import Cell from "./Cell.svelte"
     import { socket } from "../components/stores.js";
+    import { rotate, random } from "./matrix.js"
     import * as Tone from "tone";
 
     let grid = {}
     let gridValid = false;
     let play = false
     let bpm = 120;
-
 
     // Socket
     socket.on('bpm', (e) => {
@@ -35,7 +35,6 @@
 
     socket.on('sync', (e) => {
         pos = e
-        // updateEmph()
     })
 
     $: Tone.Transport.bpm.value = bpm
@@ -47,6 +46,7 @@
         grid[instrument][idx].state = !grid[instrument][idx].state;
         socket.emit('grid', grid)
     }
+
 
     const synth = new Tone.PluckSynth().toDestination();
     const sampler = new Tone.Sampler({
@@ -68,18 +68,23 @@
     
     const loop = new Tone.Loop((time) => {
         updateEmph();
+
         if (grid.pluck[pos].state) {
-            synth.triggerAttackRelease("C4", "0.5", time);
+            synth.triggerAttackRelease("C8", "0.5", time);
         } 
         if (grid.pad[pos].state) {
             sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.05, time);
         }
 
         if (grid.kick[pos].state) {
+            let v = (Math.random() * 12) * -1;
+            drums.volume.rampTo(v, 1);
             drums.triggerAttackRelease("C3", 1.0, time);
         }
 
         if (grid.hats[pos].state) {
+            let v = (Math.random() * 12) * -1;
+            drums.volume.rampTo(v, 1);
             drums.triggerAttackRelease("D3", 0.05, time);
         }
 
@@ -111,17 +116,17 @@
 
     const updateEmph = () => {
         for (var i=0; i < grid.pluck.length; i++) {
+            var emphasis;
             if (i === pos) {
-                grid.pluck[i].emph = true;
-                grid.pad[i].emph = true;
-                grid.kick[i].emph = true;
-                grid.hats[i].emph = true;
+                emphasis = true;
+
             } else {
-                grid.pluck[i].emph = false;
-                grid.pad[i].emph = false;
-                grid.kick[i].emph = false;
-                grid.hats[i].emph = false;
+                emphasis = false;
             }
+            grid.pluck[i].emph = emphasis;
+            grid.pad[i].emph = emphasis;
+            grid.kick[i].emph = emphasis;
+            grid.hats[i].emph = emphasis;
         }
     }
 
@@ -141,22 +146,27 @@
     {#if gridValid}
         {#if grid.pluck.length > 0}
             <div class="cell-container">
-            {#each grid.pluck as {state, emph}, idx}
-                <Cell 
-                    toggleFun = {()=>handleClick('pluck', idx)}
-                    selected = {state}
-                    emph = {emph}
-                />
-            {/each}
+                {#each grid.pluck as {state, emph}, idx}
+                    <Cell 
+                        toggleFun = {()=>handleClick('pluck', idx)}
+                        selected = {state}
+                        emph = {emph}
+                    />
+                {/each}
+                <button on:click={()=> {grid.pluck = rotate(grid.pluck, -1); socket.emit('grid', grid)}}>rotate</button>
+                <button on:click={()=> {grid.pluck = random(grid.pluck); socket.emit('grid', grid)}}>random</button>
             </div>
             <div class="cell-container">
-            {#each grid.pad as {state, emph}, idx}
-                <Cell 
-                    toggleFun = {()=>handleClick('pad', idx)}
-                    selected = {state}
-                    emph = {emph}
-                />
-            {/each}
+                {#each grid.pad as {state, emph}, idx}
+                    <Cell 
+                        toggleFun = {()=>handleClick('pad', idx)}
+                        selected = {state}
+                        emph = {emph}
+                    />
+                {/each}
+                <button on:click={()=> {grid.pad = rotate(grid.pad, -1)}}>rotate</button>
+                <button on:click={()=> {grid.pad = random(grid.pad)}}>random</button>
+
             </div>
 
             <div class="cell-container">
@@ -167,7 +177,11 @@
                         emph = {emph}
                     />
                 {/each}
+                <button on:click={()=> {grid.kick = rotate(grid.kick, -1)}}>rotate</button>
+                <button on:click={()=> {grid.kick = random(grid.kick)}}>random</button>
+
             </div>
+
 
             <div class="cell-container">
                 {#each grid.hats as {state, emph}, idx}
@@ -177,13 +191,22 @@
                         emph = {emph}
                     />
                 {/each}
+                
+                <button on:click={()=> {grid.hats = rotate(grid.hats, -1)}}>rotate</button>
+                <button on:click={()=> {grid.hats = random(grid.hats)}}>random</button>
+
             </div>
+
         {/if}
     {/if}
 
 </div>
 
 <style>
+    .ui {
+        max-width: 200px;
+        text-align: center;
+    }
     .grid-container {
         display: grid;
         grid-template-rows: 50% 50%;
