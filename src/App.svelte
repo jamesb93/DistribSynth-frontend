@@ -1,5 +1,7 @@
 <script>
 	import Grid from "./components/Grid.svelte";
+	import Chat from "./components/Chat.svelte";
+
     import { socket } from "./components/stores.js";
 	let numUsers = 0;
 
@@ -15,6 +17,8 @@
 	<br>
 	<!-- <Foo /> -->
 	<Grid />
+	<br>
+	<Chat />
 
 
 </main>
