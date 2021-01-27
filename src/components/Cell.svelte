@@ -35,7 +35,8 @@
     }
 
     .emphasis {
-        border-color: rgb(255, 174, 0)    
+        border-color: rgb(255, 174, 0);
+        border: 9px solid orange;
     }
 </style>
 
