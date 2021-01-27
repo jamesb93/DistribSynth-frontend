@@ -36,6 +36,7 @@
     .chat {
         display: flex;
         /* grid-template-columns: auto; */
+        min-width: 50%;
         max-width: 50%;
         /* align-self: center; */
     }
@@ -46,6 +47,7 @@
         border: 1px solid #ccc;
         border-radius: 3px;
         min-height: 200px;
+        min-width: 50%;
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         text-align: left;
         padding: 10px;
