@@ -8,7 +8,7 @@
     let text = "";
 
     const handleKeydown = (key) => {
-        if (key.key === "Enter") {
+        if (key.key === "Enter" && text != "") {
             socket.emit('chat', text);
             text = "";
         }
