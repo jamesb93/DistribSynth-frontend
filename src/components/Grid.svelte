@@ -209,7 +209,7 @@
     }
     .grid-container {
         display: grid;
-        grid-template-rows: 50% 50%;
+        grid-template-rows: repeat(4, auto);
         grid-template-columns: auto;
         align-items: center;
         align-self: center;
