@@ -1,6 +1,7 @@
 <script>
 	import Grid from "./components/Grid.svelte";
 	import Chat from "./components/Chat.svelte";
+	import Arrow from "./components/Arrow.svelte";
 
     import { socket } from "./components/stores.js";
 	let numUsers = 0;
@@ -15,10 +16,9 @@
 	{numUsers} are currently connected.
 	<br>
 	<br>
-	<!-- <Foo /> -->
 	<Grid />
 	<br>
-	<Chat />
+	<!-- <Chat /> -->
 
 
 </main>
