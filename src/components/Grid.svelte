@@ -1,12 +1,18 @@
 <script>
-	import Cell from "./Cell.svelte"
-    import { socket } from "../components/stores.js";
-    import { rotate, random } from "./matrix.js"
-    import * as Tone from "tone";
 
-    let grid = {}
+    export let kick
+    export let snare
+    export let pad
+    export let membrane
+    import Cell2 from "./Cell2.svelte";
+    import { socket } from "../components/stores.js";
+    import { rotate, random, deepCopy } from "./matrix.js";
+    import * as Tone from "tone";
+    import Arrow from './Arrow.svelte';
+
+    let grid = [];
     let gridValid = false;
-    let play = false
+    let play = false;
     let bpm = 120;
 
     // Socket
@@ -29,9 +35,8 @@
 
     socket.on('grid', (e) => {
         grid = e;
-        gridValid= true;
+        gridValid = true;
     })
-
 
     socket.on('sync', (e) => {
         pos = e
@@ -45,6 +50,10 @@
     const handleClick=(instrument, idx)=>{
         grid[instrument][idx].state = !grid[instrument][idx].state;
         socket.emit('grid', grid)
+    }
+
+    const handleClick2 = (x, y) => {
+        grid[x][y] = !grid[x][y];
     }
 
 
@@ -114,6 +123,8 @@
         socket.emit('sync', pos)
     }
 
+    const sendBpm = () => {socket.emit('bpm', bpm)}
+
     const updateEmph = () => {
         for (var i=0; i < grid.pluck.length; i++) {
             var emphasis;
@@ -130,8 +141,27 @@
         }
     }
 
-    const sendBpm = () => {socket.emit('bpm', bpm)}
+    export const shiftColumnDown = (col) => {
+        let temp = deepCopy(grid) // deep copy
+        for (var i=0; i < grid.length; i++) { // in each row
+            let below = (i + 1) % grid.length;
+            grid[below][col] = temp[i][col]
+        }
+    }
 
+    export const shiftColumnUp = (col) => {
+        let temp = deepCopy(grid) // deep copy
+        for (var i=0; i < grid.length; i++) { // in each row
+            let invert = (grid.length - i) - 1
+            let above = invert - 1
+            
+            if (above < 0) { // Wrap
+                above = grid.length - (Math.abs(0 - above));
+            }
+            grid[above][col] = temp[invert][col]
+        }
+    }
+    
 </script>
 
 <button on:click={startLoop}>start</button>
@@ -142,7 +172,66 @@
 {bpm} 
 <br>
 <input type="range" min="60" max="300" on:input={sendBpm} bind:value={bpm} class="slider">
-<div class="grid-container">
+
+
+<div class = "grid-container">
+    {#if gridValid}
+        {#each grid as row, x}
+            <!-- Left Shift -->
+            <!-- <button on:click={} /> -->
+            <div class="cell-container">
+            {#if x === 0}
+                {#each row as column, y}
+                    <div class="updownarrows">
+                        <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
+                    </div>
+                {/each}
+            {/if}
+            </div>
+            <div class="cell-container">
+                <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/>
+                {#each row as column, y}
+                    <Cell2 
+                    selected = {column}
+                    emph = {false}
+                    toggleFun = {()=> handleClick2(x, y)}
+                    />
+                {/each}
+                <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1)}}/>
+            </div>
+            <div class="cell-container">
+            {#if x === grid.length-1}
+                {#each row as column, y}
+                    <div class="updownarrows">
+                        <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
+                    </div>
+                {/each}
+            {/if}
+            </div>
+
+        {/each}
+    {/if}
+</div>
+
+
+<!-- 
+    [
+        [0, 0, 0, 0, 1],
+        [0, 0, 1, 0, 0]
+    ]
+    >>>>>
+    [
+        [0, 0, 1, 0, 1],
+        [0, 0, 0, 0, 0]
+    ]
+    input 2
+    for all the rows shift the column
+
+    x[1][2] = x[0][2]
+    x[]
+ -->
+
+<!-- <div class="grid-container">
     {#if gridValid}
         {#if grid.pluck.length > 0}
             <div class="cell-container">
@@ -200,16 +289,12 @@
         {/if}
     {/if}
 
-</div>
+</div> -->
 
 <style>
-    .ui {
-        max-width: 200px;
-        text-align: center;
-    }
     .grid-container {
         display: grid;
-        grid-template-rows: repeat(4, auto);
+        grid-template-rows: repeat(6, auto);
         grid-template-columns: auto;
         align-items: center;
         align-self: center;
@@ -251,5 +336,10 @@
         height: 25px;
         background: #4CAF50;
         cursor: pointer;
+    }
+
+    .updownarrows {
+        width: 50px;
+        padding: 5px;
     }
 </style>
