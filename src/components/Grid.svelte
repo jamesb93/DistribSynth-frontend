@@ -1,10 +1,10 @@
 <script>
 
-    export let kick
-    export let snare
-    export let pad
-    export let membrane
-    import Cell2 from "./Cell2.svelte";
+    export let kick;
+    export let snare;
+    export let pad;
+    export let membrane;
+    import Cell from "./Cell.svelte";
     import { socket } from "../components/stores.js";
     import { rotate, random, deepCopy } from "./matrix.js";
     import * as Tone from "tone";
@@ -76,29 +76,35 @@
     // const synth = new Tone.NoiseSynth().toDestination();
     
     const loop = new Tone.Loop((time) => {
-        updateEmph();
+        // updateEmph();
+        const MEMBRANE = 0;
+        const HAT = 1;
+        const PAD = 2;
+        const KICK = 3;
 
-        if (grid.pluck[pos].state) {
+        if (grid[MEMBRANE][pos]) {
             synth.triggerAttackRelease("C8", "0.5", time);
-        } 
-        if (grid.pad[pos].state) {
-            sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.05, time);
         }
 
-        if (grid.kick[pos].state) {
-            let v = (Math.random() * 12) * -1;
-            drums.volume.rampTo(v, 1);
-            drums.triggerAttackRelease("C3", 1.0, time);
-        }
-
-        if (grid.hats[pos].state) {
+        if (grid[HAT][pos]) {
             let v = (Math.random() * 12) * -1;
             drums.volume.rampTo(v, 1);
             drums.triggerAttackRelease("D3", 0.05, time);
         }
 
+        if (grid[KICK][pos]) {
+            console.log('kick')
+            let v = (Math.random() * 12) * -1;
+            drums.volume.rampTo(v, 1);
+            drums.triggerAttackRelease("C3", 1.0, time);
+        }
+
+        if (grid[PAD][pos]) {
+            sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.05, time);
+        }
+
         pos += 1;
-        pos = pos % grid.pluck.length;
+        pos = pos % grid[0].length;
     }, "16n").start(0);
 
 
@@ -119,7 +125,7 @@
 
     const sync = () => {
         pos = 0;
-        updateEmph();
+        // updateEmph();
         socket.emit('sync', pos)
     }
 
@@ -191,9 +197,9 @@
             <div class="cell-container">
                 <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/>
                 {#each row as column, y}
-                    <Cell2 
+                    <Cell
                     selected = {column}
-                    emph = {false}
+                    emph = {pos === y}
                     toggleFun = {()=> handleClick2(x, y)}
                     />
                 {/each}
