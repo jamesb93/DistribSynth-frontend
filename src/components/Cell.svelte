@@ -2,26 +2,24 @@
     export let selected;
     export let emph;
     export let toggleFun;
-
 </script>
 
 <div class="cell-container">
     <button 
-    class = "base"
-    class:select = {selected}
-    class:emphasis = {emph}
-    on:click = {toggleFun}
+        class = "base"
+        class:select = {selected}
+        class:emphasis = {emph}
+        on:click = {toggleFun}
     />
 </div>
 
-
 <style>
     div {
-        display: grid;
         padding: 5px;
     }
 
     .base {
+        padding: 5px;
         width: 50px;
         height: 50px;
         border: 3px solid black;
@@ -39,4 +37,3 @@
         border: 9px solid orange;
     }
 </style>
-
