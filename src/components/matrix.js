@@ -10,3 +10,28 @@ export const random = (arr) => {
     }
     return arr
 }
+
+export const deepCopy = (arr) => {
+    return JSON.parse(JSON.stringify(arr))
+}
+
+export const shiftColumnDown = (grid, col) => {
+    let temp = deepCopy(grid) // deep copy
+    for (var i=0; i < grid.length; i++) { // in each row
+        let below = (i + 1) % grid.length;
+        grid[below][col] = temp[i][col]
+    }
+}
+
+export const shiftColumnUp = (grid, col) => {
+    let temp = deepCopy(grid) // deep copy
+    for (var i=0; i < grid.length; i++) { // in each row
+        let invert = (grid.length - i) - 1
+        let above = invert - 1
+        
+        if (above < 0) { // Wrap
+            above = grid.length - (Math.abs(0 - above));
+        }
+        grid[above][col] = temp[invert][col]
+    }
+}

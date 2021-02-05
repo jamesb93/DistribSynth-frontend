@@ -1,5 +1,6 @@
 <script>
     export let direction = "up"
+    export let func;
 </script>
 
 <i
@@ -7,7 +8,8 @@
     class:up    = {direction === "up"}
     class:down  = {direction === "down"}
     class:right = {direction === "right"}
-    class:left    = {direction === "left"}
+    class:left  = {direction === "left"}
+    on:click    = {func}
 />
 
 
