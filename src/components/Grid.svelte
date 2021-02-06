@@ -1,14 +1,16 @@
 <script>
-
-    export let kick;
-    export let snare;
-    export let pad;
-    export let membrane;
-    import Cell from "./Cell.svelte";
-    import { socket } from "../components/stores.js";
-    import { rotate, random, deepCopy } from "./matrix.js";
     import * as Tone from "tone";
+
+    // Instruments
+    export let drums;
+    export let sampler;
+    export let synth;
+    
+    // Components
     import Arrow from './Arrow.svelte';
+    import Cell from "./Cell.svelte";
+    import { rotate, random, deepCopy } from "./matrix.js";
+    import { socket } from "../components/stores.js";
 
     let grid = [];
     let gridValid = false;
@@ -16,10 +18,7 @@
     let bpm = 120;
 
     // Socket
-    socket.on('bpm', (e) => {
-        console.log(e)
-        bpm = e
-    })
+    socket.on('bpm', (e) => {bpm = e});
 
     socket.on('play', (e) => {
         play = e
@@ -38,45 +37,15 @@
         gridValid = true;
     })
 
-    socket.on('sync', (e) => {
-        pos = e
-    })
+    socket.on('sync', (e) => {pos = e})
 
     $: Tone.Transport.bpm.value = bpm
 
-
     let pos = 0; // Init a grid position
 
-    const handleClick=(instrument, idx)=>{
-        grid[instrument][idx].state = !grid[instrument][idx].state;
-        socket.emit('grid', grid)
-    }
-
-    const handleClick2 = (x, y) => {
-        grid[x][y] = !grid[x][y];
-    }
-
-
-    const synth = new Tone.PluckSynth().toDestination();
-    const sampler = new Tone.Sampler({
-        urls: {
-            A1: "A1.mp3",
-            A2: "A2.mp3",
-        },
-        baseUrl: "https://tonejs.github.io/audio/casio/",
-}   ).toDestination();
-
-    const drums = new Tone.Sampler({
-        urls: {
-            C3: "kick.mp3",
-            D3: "hat.mp3"
-        },
-        baseUrl: "./sounds/"
-    }).toDestination();
-    // const synth = new Tone.NoiseSynth().toDestination();
+    const handleClick = (x, y) => {grid[x][y] = !grid[x][y]};
     
     const loop = new Tone.Loop((time) => {
-        // updateEmph();
         const MEMBRANE = 0;
         const HAT = 1;
         const PAD = 2;
@@ -125,27 +94,10 @@
 
     const sync = () => {
         pos = 0;
-        // updateEmph();
         socket.emit('sync', pos)
     }
 
     const sendBpm = () => {socket.emit('bpm', bpm)}
-
-    const updateEmph = () => {
-        for (var i=0; i < grid.pluck.length; i++) {
-            var emphasis;
-            if (i === pos) {
-                emphasis = true;
-
-            } else {
-                emphasis = false;
-            }
-            grid.pluck[i].emph = emphasis;
-            grid.pad[i].emph = emphasis;
-            grid.kick[i].emph = emphasis;
-            grid.hats[i].emph = emphasis;
-        }
-    }
 
     export const shiftColumnDown = (col) => {
         let temp = deepCopy(grid) // deep copy
@@ -200,7 +152,7 @@
                     <Cell
                     selected = {column}
                     emph = {pos === y}
-                    toggleFun = {()=> handleClick2(x, y)}
+                    toggleFun = {()=> handleClick(x, y)}
                     />
                 {/each}
                 <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1)}}/>
