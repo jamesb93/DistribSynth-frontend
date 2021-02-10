@@ -29,11 +29,13 @@
     }
 
     .select {
-        background-color: black;
+        background-color: #4c87af;
     }
 
     .emphasis {
-        border-color: rgb(255, 174, 0);
-        border: 9px solid orange;
+        border-color: #00ff22;
+        border: 4px solid #00ff22;
+        width: 51px;
+        height: 51px;
     }
 </style>
