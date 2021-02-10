@@ -1,24 +1,46 @@
 <script>
+    import { fade } from 'svelte/transition';
     export let direction = "up"
     export let func;
+    let hovered;
+
+    const enter = () => {
+        hovered = true;
+        console.log('enter')
+    }
+
+    const leave = () => {
+        hovered = false;
+        console.log('leave')
+    }
 </script>
 
-<i
-    class = "arrow"
+<div class="container">
+    <i
+    class="arrow"
     class:up    = {direction === "up"}
     class:down  = {direction === "down"}
     class:right = {direction === "right"}
     class:left  = {direction === "left"}
     on:click    = {func}
-/>
+    on:mouseenter={enter}
+    on:mouseleave={leave}
+    transition:fade
+    />
+</div>
 
 
 <style>
+    .container {
+        height: 60px;
+        width: 60px;
+    }
     .arrow {
-        border: solid black;
+        border: 1px solid grey;
         border-width: 0 3px 3px 0;
         display: inline-block;
-        padding: 3px;
+        padding: 4px;
+        text-align: center;
     }
     
     .right {
