@@ -5,9 +5,12 @@
     export let drums;
     export let sampler;
     export let synth;
+    export let kick;
     
     // Components
     import Arrow from './Arrow.svelte';
+    import Slider from "./Slider.svelte";
+    import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
@@ -43,16 +46,23 @@
 
     let pos = 0; // Init a grid position
 
-    const handleClick = (x, y) => {grid[x][y] = !grid[x][y]};
+    const sendGrid = () => {
+        socket.emit('grid', grid)
+    }
+
+    const handleClick = (x, y) => {
+        grid[x][y] = !grid[x][y]
+        sendGrid()
+    };
     
     const loop = new Tone.Loop((time) => {
-        const MEMBRANE = 0;
+        const SYNTH = 0;
         const HAT = 1;
         const PAD = 2;
         const KICK = 3;
 
-        if (grid[MEMBRANE][pos]) {
-            synth.triggerAttackRelease("C8", "0.5", time);
+        if (grid[SYNTH][pos]) {
+            synth.triggerAttackRelease(synth.frequency.value, 0.05, time);
         }
 
         if (grid[HAT][pos]) {
@@ -62,10 +72,7 @@
         }
 
         if (grid[KICK][pos]) {
-            console.log('kick')
-            let v = (Math.random() * 12) * -1;
-            drums.volume.rampTo(v, 1);
-            drums.triggerAttackRelease("C3", 1.0, time);
+            kick.triggerAttackRelease(kick.frequency.value, 0.1, time)
         }
 
         if (grid[PAD][pos]) {
@@ -92,14 +99,9 @@
         socket.emit('play', play)
     }
 
-    const sync = () => {
-        pos = 0;
-        socket.emit('sync', pos)
-    }
-
     const sendBpm = () => {socket.emit('bpm', bpm)}
 
-    export const shiftColumnDown = (col) => {
+    const shiftColumnDown = (col) => {
         let temp = deepCopy(grid) // deep copy
         for (var i=0; i < grid.length; i++) { // in each row
             let below = (i + 1) % grid.length;
@@ -107,7 +109,7 @@
         }
     }
 
-    export const shiftColumnUp = (col) => {
+    const shiftColumnUp = (col) => {
         let temp = deepCopy(grid) // deep copy
         for (var i=0; i < grid.length; i++) { // in each row
             let invert = (grid.length - i) - 1
@@ -120,29 +122,48 @@
         }
     }
     
+    const handleKeydown = (key) => {
+        if (key.keyCode === 37) {
+            for (var i=0; i < grid.length; i++) {
+                grid[i] = rotate(grid[i], 1)
+            }
+        }
+
+        if (key.keyCode === 39) {
+            for (var i=0; i < grid.length; i++) {
+                grid[i] = rotate(grid[i], -1)
+            }
+        }
+
+        if (key.keyCode === 38) {
+            for (var i=0; i < grid[0].length; i++) {
+                shiftColumnUp(i)
+            }
+        }
+
+        if (key.keyCode === 40) {
+            for (var i=0; i < grid[0].length; i++) {
+                shiftColumnDown(i)
+            }
+        }
+        sendGrid()
+    };
 </script>
 
-<button on:click={startLoop}>start</button>
-<button on:click={stopLoop}>stop</button>
-<button on:click={sync}>sync</button>
+<svelte:window on:keydown={handleKeydown} />
 
-<br>
-{bpm} 
-<br>
-<input type="range" min="60" max="300" on:input={sendBpm} bind:value={bpm} class="slider">
+<BoxButton func={startLoop} text="start"/>
+<BoxButton func={stopLoop} text="stop"/>
 
+<Slider title="BPM" min=60 max=300 func={sendBpm} bind:value={bpm} />
 
-<div class = "grid-container">
+<div class="grid-container">
     {#if gridValid}
         {#each grid as row, x}
-            <!-- Left Shift -->
-            <!-- <button on:click={} /> -->
             <div class="cell-container">
             {#if x === 0}
                 {#each row as column, y}
-                    <div class="updownarrows">
-                        <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
-                    </div>
+                    <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
                 {/each}
             {/if}
             </div>
@@ -160,9 +181,7 @@
             <div class="cell-container">
             {#if x === grid.length-1}
                 {#each row as column, y}
-                    <div class="updownarrows">
-                        <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
-                    </div>
+                    <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
                 {/each}
             {/if}
             </div>
@@ -170,84 +189,6 @@
         {/each}
     {/if}
 </div>
-
-
-<!-- 
-    [
-        [0, 0, 0, 0, 1],
-        [0, 0, 1, 0, 0]
-    ]
-    >>>>>
-    [
-        [0, 0, 1, 0, 1],
-        [0, 0, 0, 0, 0]
-    ]
-    input 2
-    for all the rows shift the column
-
-    x[1][2] = x[0][2]
-    x[]
- -->
-
-<!-- <div class="grid-container">
-    {#if gridValid}
-        {#if grid.pluck.length > 0}
-            <div class="cell-container">
-                {#each grid.pluck as {state, emph}, idx}
-                    <Cell 
-                        toggleFun = {()=>handleClick('pluck', idx)}
-                        selected = {state}
-                        emph = {emph}
-                    />
-                {/each}
-                <button on:click={()=> {grid.pluck = rotate(grid.pluck, -1); socket.emit('grid', grid)}}>rotate</button>
-                <button on:click={()=> {grid.pluck = random(grid.pluck); socket.emit('grid', grid)}}>random</button>
-            </div>
-            <div class="cell-container">
-                {#each grid.pad as {state, emph}, idx}
-                    <Cell 
-                        toggleFun = {()=>handleClick('pad', idx)}
-                        selected = {state}
-                        emph = {emph}
-                    />
-                {/each}
-                <button on:click={()=> {grid.pad = rotate(grid.pad, -1)}}>rotate</button>
-                <button on:click={()=> {grid.pad = random(grid.pad)}}>random</button>
-
-            </div>
-
-            <div class="cell-container">
-                {#each grid.kick as {state, emph}, idx}
-                    <Cell 
-                        toggleFun = {()=>handleClick('kick', idx)}
-                        selected = {state}
-                        emph = {emph}
-                    />
-                {/each}
-                <button on:click={()=> {grid.kick = rotate(grid.kick, -1)}}>rotate</button>
-                <button on:click={()=> {grid.kick = random(grid.kick)}}>random</button>
-
-            </div>
-
-
-            <div class="cell-container">
-                {#each grid.hats as {state, emph}, idx}
-                    <Cell 
-                        toggleFun = {()=>handleClick('hats', idx)}
-                        selected = {state}
-                        emph = {emph}
-                    />
-                {/each}
-                
-                <button on:click={()=> {grid.hats = rotate(grid.hats, -1)}}>rotate</button>
-                <button on:click={()=> {grid.hats = random(grid.hats)}}>random</button>
-
-            </div>
-
-        {/if}
-    {/if}
-
-</div> -->
 
 <style>
     .grid-container {
@@ -265,39 +206,8 @@
         justify-content: center;
     }
 
-    .slider {
-        -webkit-appearance: none;
-        width: 30%;
-        height: 25px;
-        background: #d3d3d3;
-        outline: none;
-        opacity: 0.7;
-        -webkit-transition: .2s;
-        transition: opacity .2s;
-    }
-
-    .slider:hover {
-        opacity: 1;
-    }
-
-    .slider::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 25px;
-        height: 25px;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-
-    .slider::-moz-range-thumb {
-        width: 25px;
-        height: 25px;
-        background: #4CAF50;
-        cursor: pointer;
-    }
-
-    .updownarrows {
+    .blank-cell {
         width: 50px;
-        padding: 5px;
+        height: 50px;
     }
 </style>
