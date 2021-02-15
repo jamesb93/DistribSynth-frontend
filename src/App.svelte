@@ -9,6 +9,9 @@
 
     import { numUsers } from "./components/stores.js";
 
+	let parameters = {
+		
+	}
 	const reverb = new Tone.Reverb().toDestination();
 	const mixer = new Tone.Gain(1).toDestination();
 	mixer.connect(reverb);
