@@ -61,6 +61,7 @@
 	<div class="synth-controls">
 		<FM instrument={synth} />
 		<Kick instrument={kick} />
+		<Hats instrument={hats} />
 	</div>
 	<!-- <Chat /> -->
 
