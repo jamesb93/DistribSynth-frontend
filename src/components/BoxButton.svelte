@@ -13,7 +13,7 @@
         background-color: #d3d3d3;
         border: 1px solid rgba(219, 219, 219, 0.151);
         height: 40px;
-        width: 80px;
+        width: 100px;
     }
 
     button:hover {
