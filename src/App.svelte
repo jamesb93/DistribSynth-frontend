@@ -12,17 +12,20 @@
 	let parameters = {
 		
 	}
+
 	const reverb = new Tone.Reverb().toDestination();
 	const mixer = new Tone.Gain(1).toDestination();
 	mixer.connect(reverb);
 
 	// const synth = new Tone.PluckSynth().toDestination();
 	const synth = new Tone.FMSynth().connect(mixer);
-	const kick = new Tone.MembraneSynth().connect(mixer);
-	const metal = new Tone.MetalSynth().connect(mixer);
 	synth.frequency.value = 250;
+	
+	const kick = new Tone.MembraneSynth().connect(mixer);
 	kick.frequency.value = 50;
-
+	
+	const hats = new Tone.MetalSynth().connect(mixer);
+	hats.frequency.value = 250;
 
     const sampler = new Tone.Sampler({
         urls: {
@@ -48,7 +51,8 @@
 	<span class="connected">{$numUsers} are currently connected.</span>
 	<br>
 	<Grid 
-		kick={kick} 
+		kick={kick}
+		hats={hats}
 		drums={drums} 
 		sampler={sampler} 
 		synth={synth}
