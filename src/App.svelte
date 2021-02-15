@@ -42,6 +42,13 @@
 	<span class="connected">{$numUsers} are currently connected.</span>
 	<br>
 	<Grid kick={kick} drums={drums} sampler={sampler} synth={synth} />
+	<Grid 
+		kick={kick} 
+		drums={drums} 
+		sampler={sampler} 
+		synth={synth}
+		clockMode={clockMode} 
+	/>
 	<br>
 	<div class="synth-controls">
 		<FM instrument={synth} />
