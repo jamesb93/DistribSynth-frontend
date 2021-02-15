@@ -50,6 +50,9 @@
 		clockMode={clockMode} 
 	/>
 	<br>
+	<div class="clock-controls">
+		<Clock bind:clock={clockMode}/>
+	</div>
 	<div class="synth-controls">
 		<FM instrument={synth} />
 		<Kick instrument={kick} />
