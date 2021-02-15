@@ -1,11 +1,16 @@
 <script>
     import * as Tone from "tone";
+    import {fold, wrap} from "./utility";
 
     // Instruments
     export let drums;
     export let sampler;
     export let synth;
     export let kick;
+
+    // Metronome
+    export let clockMode;
+    let clockDirection = 1;
     
     // Components
     import Arrow from './Arrow.svelte';
@@ -55,6 +60,7 @@
         sendGrid()
     };
     
+    // Logic for the Clock
     const loop = new Tone.Loop((time) => {
         const SYNTH = 0;
         const HAT = 1;
@@ -79,8 +85,44 @@
             sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.05, time);
         }
 
-        pos += 1;
-        pos = pos % grid[0].length;
+        if (clockMode === "forward") {
+            // pos ++; // Increment
+            // pos = pos % grid[0].length; // Wrap Around
+            pos++
+            pos = wrap(pos, 0, grid[0].length)
+
+        } else if (clockMode === "rebound") {
+            if (clockDirection === 1) { // if progressing forward
+                if (pos === grid[0].length-1) {
+                    pos = grid[0].length -1 // move one backward from the boundary
+                    clockDirection = 0 // change to backward
+                } else { // anywhere else
+                    pos++
+                }
+
+            } else if (clockDirection === 0) { // progressing backward
+                if (pos === 0) { // if we're at the left boundary
+                    pos++
+                    clockDirection = 1 // change to forward
+                } else {
+                    pos--
+                }
+            }   
+        } else if (clockMode === "wander") {
+            if (pos === 0) {
+                pos++
+            } else if (pos === grid[0].length-1) {
+                pos--
+            } else {
+                let randomWalk = Math.random() <= 0.5;
+                if (randomWalk) {
+                pos++
+                } else {
+                    pos--
+                }
+            }
+        }
+        
     }, "16n").start(0);
 
 
