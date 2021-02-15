@@ -2,6 +2,8 @@
 	import Grid from "./components/Grid.svelte";
 	import FM from "./components/Control/FM.svelte";
 	import Kick from "./components/Control/Kick.svelte";
+	import Hats from "./components/Control/Hats.svelte";
+
 	import Clock from "./components/Control/Clock.svelte";
     import * as Tone from "tone";
 
