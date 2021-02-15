@@ -3,10 +3,11 @@
     import {fold, wrap} from "./utility";
 
     // Instruments
+    export let kick;
+    export let hats;
     export let drums;
     export let sampler;
     export let synth;
-    export let kick;
 
     // Metronome
     export let clockMode;
@@ -54,11 +55,6 @@
     const sendGrid = () => {
         socket.emit('grid', grid)
     }
-
-    const handleClick = (x, y) => {
-        grid[x][y] = !grid[x][y]
-        sendGrid()
-    };
     
     // Logic for the Clock
     const loop = new Tone.Loop((time) => {
@@ -72,9 +68,8 @@
         }
 
         if (grid[HAT][pos]) {
-            let v = (Math.random() * 12) * -1;
-            drums.volume.rampTo(v, 1);
-            drums.triggerAttackRelease("D3", 0.05, time);
+            console.log(hats)
+            hats.triggerAttackRelease("C7", 0.01, time)
         }
 
         if (grid[KICK][pos]) {
@@ -164,7 +159,7 @@
         }
     }
     
-    const handleKeydown = (key) => {
+    const handleKey = (key) => {
         if (key.keyCode === 37) {
             for (var i=0; i < grid.length; i++) {
                 grid[i] = rotate(grid[i], 1)
@@ -190,9 +185,14 @@
         }
         sendGrid()
     };
+
+    const handleClick = (x, y) => {
+        grid[x][y] = !grid[x][y]
+        sendGrid()
+    };
 </script>
 
-<svelte:window on:keydown={handleKeydown} />
+<svelte:window on:keydown={handleKey} />
 
 <BoxButton func={startLoop} text="start"/>
 <BoxButton func={stopLoop} text="stop"/>
@@ -213,8 +213,8 @@
                 <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/>
                 {#each row as column, y}
                     <Cell
-                    selected = {column}
-                    emph = {pos === y}
+                    selected={column}
+                    emph={pos === y}
                     toggleFun = {()=> handleClick(x, y)}
                     />
                 {/each}
@@ -246,10 +246,5 @@
         flex-direction: row;
         align-items: center;
         justify-content: center;
-    }
-
-    .blank-cell {
-        width: 50px;
-        height: 50px;
     }
 </style>
