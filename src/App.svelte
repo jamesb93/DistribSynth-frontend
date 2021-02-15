@@ -35,13 +35,13 @@
         baseUrl: "./sounds/"
     }).connect(reverb);
 
-
+	// forward, rebound
+	let clockMode = "forward"
 </script>
 
 <main>
 	<span class="connected">{$numUsers} are currently connected.</span>
 	<br>
-	<Grid kick={kick} drums={drums} sampler={sampler} synth={synth} />
 	<Grid 
 		kick={kick} 
 		drums={drums} 
