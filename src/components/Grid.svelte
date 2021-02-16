@@ -1,30 +1,32 @@
-<script>
+<script type="ts">
     import * as Tone from "tone";
-    import {fold, wrap} from "./utility";
 
     // Instruments
+    export let sharedParam;
     export let kick;
     export let hats;
-    export let drums;
-    export let sampler;
-    export let synth;
+    export let metal;
+    export let pluck;
 
     // Metronome
     export let clockMode;
-    let clockDirection = 1;
+    let clockDirection: number = 1;
     
     // Components
     import Arrow from './Arrow.svelte';
     import Slider from "./Slider.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
+    import {fold, wrap} from "./utility";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
 
     let grid = [];
-    let gridValid = false;
-    let play = false;
-    let bpm = 120;
+    let gridValid: boolean = false;
+    let play: boolean = false;
+    let bpm: number = 120; // BPM
+    let pos: number = 0; // Init a grid position
+    $: Tone.Transport.bpm.value = bpm
 
     // Socket
     socket.on('bpm', (e) => {bpm = e});
@@ -48,54 +50,44 @@
 
     socket.on('sync', (e) => {pos = e})
 
-    $: Tone.Transport.bpm.value = bpm
-
-    let pos = 0; // Init a grid position
-
-    const sendGrid = () => {
-        socket.emit('grid', grid)
-    }
+    const sendGrid = () => {socket.emit('grid', grid)}
     
     // Logic for the Clock
     const loop = new Tone.Loop((time) => {
-        const SYNTH = 0;
+        const PLUCK = 0;
         const HAT = 1;
-        const PAD = 2;
+        const METAL = 2;
         const KICK = 3;
 
-        if (grid[SYNTH][pos]) {
-            synth.triggerAttackRelease(synth.frequency.value, 0.05, time);
+        if (grid[PLUCK][pos]) {
+            pluck.triggerAttackRelease(sharedParam.pluck.frequency, 0.01, time)
         }
 
         if (grid[HAT][pos]) {
-            console.log(hats)
-            hats.triggerAttackRelease("C7", 0.01, time)
+            hats.triggerAttackRelease(hats.frequency.value, 0.01, time)
+        }
+        
+        if (grid[METAL][pos]) {
+            metal.triggerAttackRelease(metal.frequency.value, metal.envelope.attack, time);
         }
 
         if (grid[KICK][pos]) {
             kick.triggerAttackRelease(kick.frequency.value, 0.1, time)
         }
 
-        if (grid[PAD][pos]) {
-            sampler.triggerAttackRelease(["C1", "E1", "G1", "B1"], 0.05, time);
-        }
-
         if (clockMode === "forward") {
-            // pos ++; // Increment
-            // pos = pos % grid[0].length; // Wrap Around
             pos++
             pos = wrap(pos, 0, grid[0].length)
 
         } else if (clockMode === "rebound") {
             if (clockDirection === 1) { // if progressing forward
                 if (pos === grid[0].length-1) {
-                    pos = grid[0].length -1 // move one backward from the boundary
+                    pos--
                     clockDirection = 0 // change to backward
                 } else { // anywhere else
                     pos++
                 }
-
-            } else if (clockDirection === 0) { // progressing backward
+            } else if (clockDirection === 0) { // if progressing backward
                 if (pos === 0) { // if we're at the left boundary
                     pos++
                     clockDirection = 1 // change to forward
@@ -111,7 +103,7 @@
             } else {
                 let randomWalk = Math.random() <= 0.5;
                 if (randomWalk) {
-                pos++
+                    pos++
                 } else {
                     pos--
                 }
@@ -194,8 +186,11 @@
 
 <svelte:window on:keydown={handleKey} />
 
-<BoxButton func={startLoop} text="start"/>
-<BoxButton func={stopLoop} text="stop"/>
+<div>
+    <BoxButton func={startLoop} text="start"/>
+    <BoxButton func={stopLoop} text="stop"/>
+</div>
+
 
 <Slider title="BPM" min=60 max=300 func={sendBpm} bind:value={bpm} />
 
