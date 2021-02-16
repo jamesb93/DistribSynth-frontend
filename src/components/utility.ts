@@ -1,12 +1,13 @@
-Math.fmod = function (a,b) { return Number((a - (Math.floor(a / b) * b)).toPrecision(8)); };
+Math.fmod = function (a,b) { 
+    return Number((a - (Math.floor(a / b) * b)).toPrecision(8));
+};
 
 export const mapRange = (i, iMin, iMax, oMin, oMax) => {
     return (i - iMin) * (oMax - oMin) / (iMax - iMin) + oMin;
 }
 
-export const fold = (i, min, max) => {
-    console.log(i)
-    let range = max - min;
+export const fold = (i: number, min: number, max: number) => {
+    let range: number = max - min;
 
     if (i <= max && i >= min) {
         return i
@@ -16,22 +17,22 @@ export const fold = (i, min, max) => {
         return min
     }
 
-    let below = (i < min)
+    let below: boolean = (i < min)
 
-    let diff = below ? min - i : i - max
-    let mag = diff / range
+    let diff: number = below ? min - i : i - max
+    let mag: number = diff / range
 
     diff -= (range * mag)
-    if ((mag % 2 == 0) ^ below) {
+    if ((mag % 2 == 0) != below) {
         return max - diff
     } else {
         return min + diff
     }
 }
 
-export const wrap = (i, min, max) => {
-    let retVal;
-    let range = max - min; 
+export const wrap = (i: number, min: number, max: number) => {
+    let retVal: number;
+    let range: number = max - min; 
 
     if (i < max && i >= min) {
         return i;
