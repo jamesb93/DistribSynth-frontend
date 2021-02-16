@@ -7,7 +7,6 @@
 
     const uHarmonicity = () => {
         instrument.harmonicity.rampTo(harmonicity, 0.1)
-        console.log(instrument.harmonicity.value)
     };
     const uFrequency = () => {
         instrument.frequency.rampTo(frequency, 0.1);
