@@ -6,12 +6,10 @@
 
     const enter = () => {
         hovered = true;
-        console.log('enter')
     }
 
     const leave = () => {
         hovered = false;
-        console.log('leave')
     }
 </script>
 

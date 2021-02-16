@@ -1,82 +1,81 @@
-<script>
+<script lang="ts">
 	import Grid from "./components/Grid.svelte";
-	import FM from "./components/Control/FM.svelte";
+	import Pluck from "./components/Control/Pluck.svelte";
 	import Kick from "./components/Control/Kick.svelte";
 	import Hats from "./components/Control/Hats.svelte";
-
+	
 	import Clock from "./components/Control/Clock.svelte";
-    import * as Tone from "tone";
-
-    import { numUsers } from "./components/stores.js";
-
-	let parameters = {
-		
-	}
-
+	import * as Tone from "tone";
+	
+	import { numUsers } from "./components/stores.js";
+	
 	const reverb = new Tone.Reverb().toDestination();
 	const mixer = new Tone.Gain(1).toDestination();
+	
+	const pluck = new Tone.PluckSynth().toDestination();
+	const kick = new Tone.MembraneSynth().connect(mixer);
+	kick.frequency.value = 40;
+	const metal_one = new Tone.MetalSynth().connect(mixer);
+	metal_one.frequency.value = 200;
+	const metal_two = new Tone.MetalSynth().connect(mixer);
+	metal_two.frequency.value = 200;
 	mixer.connect(reverb);
 
-	// const synth = new Tone.PluckSynth().toDestination();
-	const synth = new Tone.FMSynth().connect(mixer);
-	synth.frequency.value = 250;
-	
-	const kick = new Tone.MembraneSynth().connect(mixer);
-	kick.frequency.value = 50;
-	
-	const hats = new Tone.MetalSynth().connect(mixer);
-	hats.frequency.value = 250;
+	let sharedParam = {
+		'pluck' : {
+			frequency : 100
+		},
+		'kick' : {
 
-    const sampler = new Tone.Sampler({
-        urls: {
-            A1: "A1.mp3",
-            A2: "A2.mp3",
-        },
-        baseUrl: "https://tonejs.github.io/audio/casio/",}
-	).connect(reverb);
+		},
+		'hats' : {
 
-    const drums = new Tone.Sampler({
-        urls: {
-            C3: "kick.mp3",
-            D3: "hat.mp3"
-        },
-        baseUrl: "./sounds/"
-    }).connect(reverb);
+		},
+		'metal' : {
 
-	// forward, rebound
-	let clockMode = "forward"
+		}
+	}
+		
+	// Modes
+	type clockStates = "forward" | "rebound" | "wander"
+	let clockMode: clockStates = "forward"
 </script>
-
+	
 <main>
-	<span class="connected">{$numUsers} are currently connected.</span>
-	<br>
-	<Grid 
-		kick={kick}
-		hats={hats}
-		drums={drums} 
-		sampler={sampler} 
-		synth={synth}
-		clockMode={clockMode} 
-	/>
-	<br>
-	<div class="clock-controls">
-		<Clock bind:clock={clockMode}/>
+	<div class="main-layout">
+		<span class="connected">{$numUsers} are currently connected.</span>
+		<Grid 
+			sharedParam={sharedParam}
+			kick={kick}
+			hats={metal_one}
+			metal={metal_two}
+			pluck={pluck}
+			clockMode={clockMode} 
+		/>
+		<div class="clock-controls">
+			<Clock bind:clock={clockMode}/>
+		</div>
+		<div class="synth-controls">
+			<Pluck instrument={pluck} sharedParam={sharedParam} />
+			<Kick instrument={kick} />
+			<Hats instrument={metal_one} />
+			<Hats instrument={metal_two} />
+		</div>
 	</div>
-	<div class="synth-controls">
-		<FM instrument={synth} />
-		<Kick instrument={kick} />
-		<Hats instrument={hats} />
-	</div>
-	<!-- <Chat /> -->
-
 
 </main>
-
+	
 <style>
-
+	.main-layout {
+		display: flex;
+		flex-direction: column;
+		align-items: center;
+		gap: 25px;
+	}
+	
 	.connected {
 		font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        color: grey;
+		color: grey;
 	}
 	.synth-controls {
 		display: grid;
@@ -84,27 +83,14 @@
 		justify-content: center;
 		grid-gap: 10px;
 	}
-
-	.membrane {
-		display: grid;
-		grid-template-columns: auto auto;
-		grid-template-rows: auto auto;
-	}
-
+	
 	main {
 		text-align: center;
 		padding: 1em;
 		max-width: 240px;
 		margin: 0 auto;
 	}
-
-	h1 {
-		color: #ff3e00;
-		text-transform: uppercase;
-		font-size: 4em;
-		font-weight: 100;
-	}
-
+	
 	@media (min-width: 640px) {
 		main {
 			max-width: none;

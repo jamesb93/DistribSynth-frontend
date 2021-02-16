@@ -1,6 +1,5 @@
 <script>
     export let clock;
-    console.log(clock, 'inside the Clock component')
 </script>
 
 <button 

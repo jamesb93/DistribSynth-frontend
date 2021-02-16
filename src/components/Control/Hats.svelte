@@ -1,41 +1,18 @@
 <script>
     import Slider from "../Slider.svelte"
     export let instrument;
-    let frequency = 200;
-    let harmonicity = 5.1;
-    let modulationIndex = 32;
-    let resonance = 4000;
-    let octaves = 1.5;
-    let attack = 1.4;
-    let release = 0.2;
+    let frequency = instrument.frequency.value;
 
-    const uHarmonicity = () => {
-        instrument.harmonicity = harmonicity;
-    };
-    const uFrequency = () => {
-        instrument.frequency = frequency;
-    };
-    const uModulationIndex = () => {
-        instrument.modulationIndex = modulationIndex;
-    };
-
-    const uResonance = () => {
-        instrument.resonance = resonance;
-    }
-
-    const uOctaves = () => {
-        instrument.octaves = octaves;
-    }
-    
+    const uFrequency = () => {instrument.frequency.rampTo(frequency, 0.1)};
 </script>
 
 <div class="container">
     <span class="title">Hi-Hat Synthesis</span>
-    <Slider min="40" max="2500" title="Frequency" bind:value={frequency} func={uFrequency} />
-    <Slider min="0.5" max="100" title="Harmonicity" bind:value={harmonicity} func={uHarmonicity} />
-    <Slider min="10" max="100" title="Index" bind:value={modulationIndex} func={uModulationIndex} />
-    <Slider min="10" max="100" title="Resonance" bind:value={resonance} func={uResonance} />
-    <Slider min="1" max="10" title="Octaves" bind:value={octaves} func={uOctaves} />
+    <Slider min="10" max="300" step="1" title="Frequency" bind:value={frequency} func={uFrequency} />
+    <Slider min="0.1" max="5.1" step="0.1" title="Harmonicity" bind:value={instrument.harmonicity} />
+    <Slider min="0.01" max="32" step="0.1" title="Index" bind:value={instrument.modulationIndex} />
+    <Slider min="1" max="5000" step="1" title="Resonance" bind:value={instrument.resonance} />
+    <Slider min="0" max="10" step="0.25" title="Octaves" bind:value={instrument.octaves} />
 </div>
 
 <style>
