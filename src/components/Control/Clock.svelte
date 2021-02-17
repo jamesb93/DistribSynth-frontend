@@ -1,23 +1,29 @@
 <script>
-    export let clock;
+    export let value;
+    import { socket } from '../stores.js';
+
+    const handleClick = (mode) => {
+        value = mode;
+        socket.emit('clock::mode', value)
+    }
 </script>
 
 <button 
-    class:select="{clock === 'forward'}"
-    on:click={() => {clock = 'forward'}}
+    class:select="{value === 'forward'}"
+    on:click={() => handleClick('forward')}
 >
     forward
 </button>
 <button 
-    class:select="{clock === 'rebound'}"
-    on:click={() => {clock = 'rebound'}}
+    class:select="{value === 'rebound'}"
+    on:click={() => handleClick('rebound')}
 >
     rebound
 </button>
 
 <button 
-    class:select="{clock === 'wander'}"
-    on:click={() => {clock = 'wander'}}
+    class:select="{value === 'wander'}"
+    on:click={() => handleClick('wander')}
 >
     wander
 </button>
