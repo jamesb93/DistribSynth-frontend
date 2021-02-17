@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as Tone from "tone";
-	Tone.Master.volume.value = -12;
 	import { numUsers, socket } from "./components/stores.js";
 	import Grid from "./components/Grid.svelte";
 	import Pluck from "./components/Control/Pluck.svelte";
