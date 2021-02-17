@@ -11,7 +11,7 @@
 <span class="text title">{title}</span>
 <div class="container">
     <span class="text min">{min}</span>
-    <input class="slider" type="range" min="{min}" max="{max}" on:input={func} bind:value={value} />
+    <input class="slider" type="range" min={min} max={max} step={step} on:input={func} bind:value={value} />
     <span class="text max">{max}</span>
 </div>
 <span class="text value">{value}</span>
