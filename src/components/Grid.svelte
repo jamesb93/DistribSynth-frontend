@@ -2,7 +2,7 @@
     import * as Tone from "tone";
 
     // Instruments
-    export let sharedParam;
+    export let parameters;
     export let kick;
     export let hats;
     export let metal;
@@ -17,7 +17,7 @@
     import Slider from "./Slider.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
-    import {fold, wrap} from "./utility";
+    import {fold, wrap} from "./utility.ts";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
 
@@ -60,7 +60,7 @@
         const KICK = 3;
 
         if (grid[PLUCK][pos]) {
-            pluck.triggerAttackRelease(sharedParam.pluck.frequency, 0.01, time)
+            pluck.triggerAttackRelease(parameters.pluck.frequency, 0.01, time)
         }
 
         if (grid[HAT][pos]) {

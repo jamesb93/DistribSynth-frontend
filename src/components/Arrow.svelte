@@ -2,6 +2,7 @@
     import { fade } from 'svelte/transition';
     export let direction = "up"
     export let func;
+    
     let hovered;
 
     const enter = () => {
