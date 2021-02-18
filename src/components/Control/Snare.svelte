@@ -3,6 +3,8 @@
     import Slider from "../Slider.svelte";
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
+    import Presets from "./Presets.svelte";
+    
     export let filter;
     export let envelope;
     export let parameters;
@@ -47,4 +49,5 @@
     <Slider min="0.001" max="1.0" step="0.001" title="decay" bind:value={parameters.snare.decay} func={uDecay} />
     <Slider min="0.001" max="1.0" step="0.001" title="sustain" bind:value={parameters.snare.sustain} func={uSustain} />
     <Slider min="0.001" max="1.0" step="0.001" title="release" bind:value={parameters.snare.release} func={uRelease} />
+    <Presets bind:data={parameters} key={'snare'} />
 </ControlContainer>

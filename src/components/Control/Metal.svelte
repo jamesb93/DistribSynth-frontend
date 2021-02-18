@@ -3,6 +3,8 @@
     import Slider from "../Slider.svelte";
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
+    import Presets from "./Presets.svelte";
+
     export let instrument;
     export let parameters;
     export let id: string = "metal_one"
@@ -48,4 +50,6 @@
     <Slider min="0.01" max="32" step="0.1" title="Index" bind:value={parameters[id].modulationIndex} func={uModulationIndex} />
     <Slider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
     <Slider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
+    <Presets bind:data={parameters} key={'snare'} />
+
 </ControlContainer>
