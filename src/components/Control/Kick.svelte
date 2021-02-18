@@ -1,54 +1,56 @@
 <script>
-    import Slider from "../Slider.svelte"
+    import { socket } from "../stores.js";
+    import Slider from "../Slider.svelte";
+    import ControlTitle from "./ControlTitle.svelte";
+    import ControlContainer from "./ControlContainer.svelte";
     export let instrument;
-    let frequency = 50;
-    let attack = 0.1;
-    let decay = 4;
-    let release = 1.4
-    let sustain = 0.01
+    export let parameters;
+
+    $: instrument.frequency.value = parameters.kick.frequency;
+    $: instrument.octaves = parameters.kick.octaves;
+    $: instrument.envelope.attack = parameters.kick.attack;
+    $: instrument.envelope.sustain = parameters.kick.sustain;
+    $: instrument.envelope.decay = parameters.kick.decay;
+    $: instrument.envelope.release = parameters.kick.release;
+
 
     const uFrequency = () => {
-        instrument.frequency.rampTo(frequency, 0.1);
+        socket.emit('params::kick', 'frequency', parameters.kick.frequency)
     };
+
+    const uOctaves = () => {
+        socket.emit('params::kick', 'octaves', parameters.kick.octaves)
+    }
 
     const uAttack  = () => {
-        instrument.envelope.attack = (attack / 100.0)
+        socket.emit('params::kick', 'attack', parameters.kick.attack)
     };
+
     const uDecay   = () => {
-        instrument.envelope.decay = (decay / 100.0)
+        socket.emit('params::kick', 'decay', parameters.kick.decay)
     };
+
     const uRelease = () => {
-        instrument.envelope.release = (release / 100.0)
+        socket.emit('params::kick', 'release', parameters.kick.release)
     };
     const uSustain = () => {
-        instrument.envelope.sustain = (sustain / 100.0)
+        socket.emit('params::kick', 'sustain', parameters.kick.sustain)
     };
+    
+    socket.on('params::kick::frequency', (data) => {parameters.kick.frequency = data});
+    socket.on('params::kick::octaves', (data) => {parameters.kick.octaves = data});
+    socket.on('params::kick::attack', (data) => {parameters.kick.attack = data});
+    socket.on('params::kick::decay', (data) => {parameters.kick.decay = data});
+    socket.on('params::kick::release', (data) => {parameters.kick.release = data});
+    socket.on('params::kick::sustain', (data) => {parameters.kick.sustain = data});
 </script>
 
-<div class="container">
-    <span class="title">Kick Synth</span>
-    <Slider title="Frequency" min=35 max=90 bind:value={frequency} func={uFrequency} />
-    <Slider title="Octaves" min=2 max=100 bind:value={instrument.octaves} />
-    <Slider title="Attack" min=0 max=100 bind:value={attack} func={uAttack} />
-    <!-- <Slider title="Decay" min=0 max=100 bind:value={decay} func={uDecay} /> -->
-    <!-- <Slider title="Release" min=0 max=400 bind:value={release} func={uRelease} /> -->
-    <Slider title="Sustain" min=0 max=100 bind:value={sustain} func={uSustain} />
-</div>
-
-<style>
-    .title {
-        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-        color: grey;
-    }
-    .container {
-        background-color: rgba(219, 219, 219, 0.151);
-        display: flex;
-        flex-direction: column;
-        border: 1px solid grey;
-        border-radius: 5px;
-        width: 100%;
-        padding-top: 10px;
-        padding-bottom: 10px;
-        width: 400px;
-    }
-</style>
+<ControlContainer>
+    <ControlTitle title="Kick Synth"/>
+    <Slider title="Frequency" min="35" max="90" bind:value={parameters.kick.frequency} func={uFrequency} />
+    <Slider title="Octaves" min="0.5" max="8" step="0.5" bind:value={parameters.kick.octaves} func={uOctaves}/>
+    <Slider title="Attack" min="0.0" max="0.1" step="0.001" bind:value={parameters.kick.attack} func={uAttack} />
+    <Slider title="Decay" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.decay} func={uDecay} />
+    <Slider title="Sustain" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.sustain} func={uSustain} />
+    <Slider title="Release" min="0.0" max="1.4" step="0.05" bind:value={parameters.kick.release} func={uRelease} />
+</ControlContainer>
