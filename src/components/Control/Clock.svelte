@@ -8,25 +8,27 @@
     }
 </script>
 
-<button 
-    class:select="{value === 'forward'}"
-    on:click={() => handleClick('forward')}
->
-    forward
-</button>
-<button 
-    class:select="{value === 'rebound'}"
-    on:click={() => handleClick('rebound')}
->
-    rebound
-</button>
+<div class="container">
+    <button 
+        class:select="{value === 'forward'}"
+        on:click={() => handleClick('forward')}
+    >
+        <span class:select-text={value==='forward'}>forward</span>
+    </button>
+    <button 
+        class:select="{value === 'rebound'}"
+        on:click={() => handleClick('rebound')}
+    >
+        <span class:select-text={value==='rebound'}>rebound</span>
+    </button>
 
-<button 
-    class:select="{value === 'wander'}"
-    on:click={() => handleClick('wander')}
->
-    wander
-</button>
+    <button 
+        class:select="{value === 'wander'}"
+        on:click={() => handleClick('wander')}
+    >
+        <span class:select-text={value==='wander'}>wander</span>
+    </button>
+</div>
 
 <style>
     button {
@@ -35,6 +37,13 @@
         border: 1px solid rgba(219, 219, 219, 0.151);
         height: 40px;
         width: 100px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: row;
+        gap: 1px;
+        
     }
 
     button:hover {
@@ -50,11 +59,13 @@
         
     }
 
-
     span {
         font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
         color: grey;
-        font-size: 20px;
-        
+        font-size: 14px;
+    }
+
+    .select-text {
+        color: whitesmoke;
     }
 </style>
