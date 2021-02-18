@@ -50,9 +50,7 @@
     
     .slider {
         -webkit-appearance: none;
-        width: 275px;
-        min-width: 275px;
-        max-width: 275px;
+        width: 75%;
         height: 10px;
         border-radius: 5px;   
         background: #d3d3d3;
