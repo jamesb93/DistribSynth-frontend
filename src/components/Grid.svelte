@@ -12,17 +12,22 @@
     export let tomHi;
 
     // Metronome
-    export let clockMode;
     let clockDirection: number = 1;
     
     // Components
     import Arrow from './Arrow.svelte';
     import Slider from "./Slider.svelte";
+    import Clock from "./Control/Clock.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
     import {fold, wrap} from "./utility";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
+
+// Clock Modes
+	type clockStates = "forward" | "rebound" | "wander"
+	let clockMode: clockStates;
+	socket.on('clock::mode', (data) => {clockMode = data});
 
     let grid = [];
     let gridValid: boolean = false;
@@ -191,6 +196,24 @@
         sendGrid()
     };
 
+    const clearGrid = () => {
+        for (var i=0; i < grid.length; i++) {
+            for (var j=0; j < grid[i].length; j++) {
+                grid[i][j] = false;
+            }
+        }
+        sendGrid()
+    }
+
+    const randomiseGrid = () => {
+        for (var i=0; i < grid.length; i++) {
+            for (var j=0; j < grid[i].length; j++) {
+                grid[i][j] = Math.random() < 0.2;
+            }
+        }
+        sendGrid()
+    }
+
     const handleClick = (x, y) => {
         grid[x][y] = !grid[x][y]
         sendGrid()
@@ -199,49 +222,75 @@
 
 <svelte:window on:keydown={handleKey} />
 
-<div>
-    <BoxButton func={startLoop} text="start"/>
-    <BoxButton func={stopLoop} text="stop"/>
-</div>
-
-
-<Slider title="BPM" min=60 max=300 func={sendBpm} bind:value={bpm} />
-
 <div class="grid-container">
-    {#if gridValid}
-        {#each grid as row, x}
-            <div class="cell-container">
-            {#if x === 0}
-                {#each row as column, y}
-                    <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
-                {/each}
-            {/if}
-            </div>
-            <div class="cell-container">
-                <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/>
-                {#each row as column, y}
-                    <Cell
-                    selected={column}
-                    emph={pos === y}
-                    toggleFun = {()=> handleClick(x, y)}
-                    />
-                {/each}
-                <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1)}}/>
-            </div>
-            <div class="cell-container">
-            {#if x === grid.length-1}
-                {#each row as column, y}
-                    <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
-                {/each}
-            {/if}
-            </div>
+    <div class="grid">
+        {#if gridValid}
+            {#each grid as row, x}
+                <div class="cell-container">
+                <!-- {#if x === 0}
+                    {#each row as column, y}
+                        <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
+                    {/each}
+                {/if} -->
+                </div>
+                <div class="cell-container">
+                    <!-- <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/> -->
+                    {#each row as column, y}
+                        <Cell
+                        selected={column}
+                        emph={pos === y}
+                        toggleFun = {()=> handleClick(x, y)}
+                        />
+                    {/each}
+                    <!-- <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1)}}/> -->
+                </div>
+                <div class="cell-container">
+                <!-- {#if x === grid.length-1}
+                    {#each row as column, y}
+                        <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
+                    {/each}
+                {/if} -->
+                </div>
+    
+            {/each}
+        {/if}
+    </div>
+    <div class="grid-controls">
+        <!-- TODO: EACH PART OF THE GRID-CONTROLS SHOULD BE A COMPONENT -->
+        <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
+        <div class="clock-controls">
+            <BoxButton func={startLoop} text="start"/>
+            <BoxButton func={stopLoop} text="stop"/>
+        </div>
+        <Clock bind:value={clockMode}/>
+        <div class="clock-controls">
+            <BoxButton func={clearGrid} text="clear" />
+            <BoxButton func={randomiseGrid} text="randomise" />
 
-        {/each}
-    {/if}
+        </div>
+    </div>
 </div>
 
 <style>
     .grid-container {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        gap: 10px;
+    }
+    .grid-controls {
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 3px;
+    }
+    .clock-controls {
+        display: flex;
+        flex-direction: row;
+        gap: 1px;
+    }
+
+    .grid {
         display: grid;
         grid-template-rows: repeat(8, auto);
         grid-template-columns: auto;
