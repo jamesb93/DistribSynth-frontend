@@ -1,6 +1,6 @@
 <script>
-    export let value;
     import { socket } from '../stores.js';
+    export let value;
 
     const handleClick = (mode) => {
         value = mode;
