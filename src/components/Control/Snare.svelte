@@ -4,7 +4,7 @@
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
-    
+
     export let filter;
     export let envelope;
     export let parameters;
