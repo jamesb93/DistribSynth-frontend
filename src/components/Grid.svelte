@@ -31,16 +31,12 @@
 
     let grid = [];
     let gridValid: boolean = false;
-    let play: boolean = false;
+    let play: boolean;
     let bpm: number = 120; // BPM
     let pos: number = 0; // Init a grid position
     $: Tone.Transport.bpm.value = bpm
 
-    // Socket
-    socket.on('bpm', (e) => {bpm = e});
-
-    socket.on('play', (e) => {
-        play = e
+    const updatePlayStatus = () => {
         if (play) {
             Tone.start();
             Tone.Transport.start();
@@ -49,14 +45,21 @@
             Tone.Transport.stop();
             loop.stop();
         }
-    })
+    }
+    $: play, updatePlayStatus();
+    // Socket
+    const sync = () => {socket.emit('sync', pos)}
+
+    socket.on('sync', (data) => {pos=data});
+
+    socket.on('bpm', (data) => {bpm=data});
+
+    socket.on('play', (data) => {play=data})
 
     socket.on('grid', (e) => {
         grid = e;
         gridValid = true;
     })
-
-    socket.on('sync', (e) => {pos = e})
 
     const sendGrid = () => {socket.emit('grid', grid)}
     
@@ -133,16 +136,11 @@
 
     const startLoop = () => {
         play = true;
-        Tone.start();
-        Tone.Transport.start();
-        loop.start();
         socket.emit('play', play)
     }
 
     const stopLoop = () => {
         play = false
-        loop.stop();
-        Tone.Transport.stop();
         socket.emit('play', play)
     }
 
@@ -261,6 +259,7 @@
         <div class="clock-controls">
             <BoxButton func={startLoop} text="start"/>
             <BoxButton func={stopLoop} text="stop"/>
+            <BoxButton func={sync} text="sync" />
         </div>
         <Clock bind:value={clockMode}/>
         <div class="clock-controls">
