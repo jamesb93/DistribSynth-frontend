@@ -5,7 +5,6 @@
 	import Snare from "./components/Control/Snare.svelte";
 	import Kick from "./components/Control/Kick.svelte";
 	import Metal from "./components/Control/Metal.svelte";
-	import Clock from "./components/Control/Clock.svelte";
 	import TomLow from "./components/Control/TomLow.svelte";
 	import TomHi from "./components/Control/TomHi.svelte";
 
@@ -35,11 +34,6 @@
 	// Toms (hi/low)
 	const tomLow = new Tone.MembraneSynth().connect(mixer);
 	const tomHi = new Tone.MembraneSynth().connect(mixer);
-		
-	// Clock Modes
-	type clockStates = "forward" | "rebound" | "wander"
-	let clockMode: clockStates;
-	socket.on('clock::mode', (e) => {clockMode = e});
 
 	let params = null;
 	socket.on('params', (e) => {params = e}) // get all params in one message
@@ -47,9 +41,7 @@
 	
 <main>
 	<div class="main-layout">
-		<div class="grid-controls">
-			<span class="connected">{$numUsers} are currently connected.</span>
-		</div>
+		<span class="connected">{$numUsers} are currently connected.</span>
 		<Grid
 			parameters={params}
 			kick={kick}
@@ -59,11 +51,7 @@
 			tomLow={tomLow}
 			tomHi={tomHi}
 			snareMembrane={membrane}
-			clockMode={clockMode} 
 		/>
-		<div class="clock-controls">
-			<Clock bind:value={clockMode}/>
-		</div>
 		{#if params}
 		<div class="synth-controls">
 			<Snare filter={snareFilter} envelope={snare} parameters={params}/>
@@ -93,7 +81,7 @@
 	}
 	.synth-controls {
 		display: grid;
-		grid-template-columns: auto auto;
+		grid-template-columns: repeat(3, auto);
 		justify-content: center;
 		grid-gap: 10px;
 	}
