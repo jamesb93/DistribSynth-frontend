@@ -2,21 +2,39 @@
 	import * as Tone from "tone";
 	import { numUsers, socket } from "./components/stores.js";
 	import Grid from "./components/Grid.svelte";
-	import Pluck from "./components/Control/Pluck.svelte";
+	import Snare from "./components/Control/Snare.svelte";
 	import Kick from "./components/Control/Kick.svelte";
-	import Hats from "./components/Control/Hats.svelte";
+	import Metal from "./components/Control/Metal.svelte";
 	import Clock from "./components/Control/Clock.svelte";
+	import TomLow from "./components/Control/TomLow.svelte";
+	import TomHi from "./components/Control/TomHi.svelte";
+
 	// const reverb = new Tone.Reverb().toDestination();
-	const mixer = new Tone.Gain(1).toDestination();
+	const mixer = new Tone.Gain(0.75).toDestination();
 	
-	const pluck = new Tone.PluckSynth().toDestination();
+	// Custom Snare
+	const snare = new Tone.AmplitudeEnvelope(0.01, 0.374, 0.001, 1.0).toDestination();
+	const membrane = new Tone.MembraneSynth().toDestination();
+	membrane.pitchDecay = 0;
+	membrane.frequency.value = 160;
+	membrane.envelope.attack = 0.005;
+	membrane.envelope.decay = 0.08;
+	membrane.envelope.sustain = 0.01;
+	membrane.envelope.release = 0.01;
+	const snareFilter = new Tone.Filter(2750, "bandpass", -12).connect(snare);
+	const snareNoise = new Tone.Noise().connect(snareFilter).start();
+
+	// Kick
 	const kick = new Tone.MembraneSynth().connect(mixer);
-	kick.frequency.value = 40;
+
+	// Metallic Synths (Hats/Cymbal)
 	const metal_one = new Tone.MetalSynth().connect(mixer);
-	metal_one.frequency.value = 200;
 	const metal_two = new Tone.MetalSynth().connect(mixer);
-	metal_two.frequency.value = 200;
 	// mixer.connect(reverb);
+
+	// Toms (hi/low)
+	const tomLow = new Tone.MembraneSynth().connect(mixer);
+	const tomHi = new Tone.MembraneSynth().connect(mixer);
 		
 	// Clock Modes
 	type clockStates = "forward" | "rebound" | "wander"
@@ -29,28 +47,31 @@
 	
 <main>
 	<div class="main-layout">
-		<span class="connected">{$numUsers} are currently connected.</span>
-		{#if params}
+		<div class="grid-controls">
+			<span class="connected">{$numUsers} are currently connected.</span>
+		</div>
 		<Grid
 			parameters={params}
 			kick={kick}
-			hats={metal_one}
-			metal={metal_two}
-			pluck={pluck}
+			metalOne={metal_one}
+			metalTwo={metal_two}
+			snare={snare}
+			tomLow={tomLow}
+			tomHi={tomHi}
+			snareMembrane={membrane}
 			clockMode={clockMode} 
 		/>
-		{:else}
-			No connection to server?
-		{/if}
 		<div class="clock-controls">
 			<Clock bind:value={clockMode}/>
 		</div>
 		{#if params}
 		<div class="synth-controls">
-			<Pluck instrument={pluck} parameters={params} />
-			<Kick instrument={kick} />
-			<Hats instrument={metal_one} />
-			<Hats instrument={metal_two} />
+			<Snare filter={snareFilter} envelope={snare} parameters={params}/>
+			<Kick instrument={kick} parameters={params}/>
+			<Metal id="metal_one" instrument={metal_one} parameters={params} />
+			<Metal id="metal_two" instrument={metal_two} parameters={params}/>
+			<TomLow instrument={tomLow} parameters={params} />
+			<TomHi instrument={tomHi} parameters={params} />
 		</div>
 		{:else}
 			No connection to server?
