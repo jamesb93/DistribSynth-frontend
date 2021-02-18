@@ -1,4 +1,4 @@
-Math.fmod = function (a,b) { 
+const fmod = (a,b) => { 
     return Number((a - (Math.floor(a / b) * b)).toPrecision(8));
 };
 
@@ -48,7 +48,7 @@ export const wrap = (i: number, min: number, max: number) => {
             retVal += range;
     }
     else
-        retVal = Math.fmod(i - min, range) + min;
+        retVal = fmod(i - min, range) + min;
 
     return retVal;
 } 
