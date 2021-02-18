@@ -12,6 +12,6 @@
         width: 100%;
         padding-top: 10px;
         padding-bottom: 10px;
-        width: 400px;
+        width: 300px;
     }
 </style>
