@@ -17,7 +17,7 @@
     import Slider from "./Slider.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
-    import {fold, wrap} from "./utility.ts";
+    import {fold, wrap} from "./utility";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
 
