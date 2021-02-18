@@ -1,4 +1,5 @@
 <script type="ts">
+    import { socket } from "../stores.js";
     export let data;
     export let key;
 
@@ -14,6 +15,9 @@
             if (store[idx]) {
                 data[key] = JSON.parse(store[idx])
             }
+            for (let [param, value] of Object.entries(data[key])) {
+                socket.emit('params::'+key, param, value)
+            }
         };
     }
 
@@ -24,7 +28,7 @@
     };
     const handleKeyUp = (key) => {
         if (key.code === "ShiftLeft") {
-            modifierDown = false
+            modifierDown = false;
         }
     };
 </script>
