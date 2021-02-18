@@ -4,9 +4,12 @@
     // Instruments
     export let parameters;
     export let kick;
-    export let hats;
-    export let metal;
-    export let pluck;
+    export let metalOne;
+    export let metalTwo;
+    export let snare;
+    export let snareMembrane;
+    export let tomLow;
+    export let tomHi;
 
     // Metronome
     export let clockMode;
@@ -52,27 +55,37 @@
 
     const sendGrid = () => {socket.emit('grid', grid)}
     
+    const SNARE = 0;
+    const METALONE = 1;
+    const METALTWO = 2;
+    const TOMLOW = 3;
+    const TOMHI = 4;
+    const KICK = 5;
     // Logic for the Clock
     const loop = new Tone.Loop((time) => {
-        const PLUCK = 0;
-        const HAT = 1;
-        const METAL = 2;
-        const KICK = 3;
-
-        if (grid[PLUCK][pos]) {
-            pluck.triggerAttackRelease(parameters.pluck.frequency, 0.01, time)
+        if (grid[TOMHI][pos]) {
+            tomHi.triggerAttackRelease(tomHi.frequency.value, "8n", time)
         }
 
-        if (grid[HAT][pos]) {
-            hats.triggerAttackRelease(hats.frequency.value, 0.01, time)
+        if (grid[TOMLOW][pos]) {
+            tomLow.triggerAttackRelease(tomHi.frequency.value, "8n", time)
+        }
+
+        if (grid[SNARE][pos]) {
+            snare.triggerAttackRelease("16n", time);
+            snareMembrane.triggerAttackRelease(snareMembrane.frequency.value, "8n", time);
+        }
+
+        if (grid[METALONE][pos]) {
+            metalOne.triggerAttackRelease(metalOne.frequency.value, "8n", time);
         }
         
-        if (grid[METAL][pos]) {
-            metal.triggerAttackRelease(metal.frequency.value, metal.envelope.attack, time);
+        if (grid[METALTWO][pos]) {
+            metalTwo.triggerAttackRelease(metalTwo.frequency.value, "8n", time);
         }
 
         if (grid[KICK][pos]) {
-            kick.triggerAttackRelease(kick.frequency.value, 0.1, time)
+            kick.triggerAttackRelease(parameters.kick.frequency, "8n", time);
         }
 
         if (clockMode === "forward") {
@@ -230,7 +243,7 @@
 <style>
     .grid-container {
         display: grid;
-        grid-template-rows: repeat(6, auto);
+        grid-template-rows: repeat(8, auto);
         grid-template-columns: auto;
         align-items: center;
         align-self: center;
