@@ -24,24 +24,19 @@
 <style>
     /* Div Area Stuff */
     .meta {
-        padding: 5px;
+        padding: 2px;
     }
 
     .clickable {
         z-index: 99;
     }
 
-    .ranged {
-        z-index: 1;
-        background-color: rgba(255, 166, 0, 0.5);
-    }
-
     /* Button Stuff */
     .base {
-        width: 50px;
-        height: 50px;
-        padding: 5px;
-        border: 3px solid black;
+        width: 30px;
+        height: 30px;
+        padding: 0px;
+        border: 2px solid black;
         display: inline-block;
         border-radius: 0px;
         background-color: whitesmoke;
@@ -52,9 +47,8 @@
     }
 
     .emphasis {
-        border-color: #00ff22;
-        border: 4px solid #00ff22;
-        width: 51px;
-        height: 51px;
+        border: 2px solid #ff5d5d;
+        width: 30px;
+        height: 30px;
     }
 </style>
