@@ -1,5 +1,5 @@
 <script>
-    export let func = () => {return func};
+    export let func = () => {return};
     export let text = "";
 </script>
 
