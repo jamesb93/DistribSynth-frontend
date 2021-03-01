@@ -9,11 +9,14 @@
 	import TomHi from "./components/Control/TomHi.svelte";
 
 	// const reverb = new Tone.Reverb().toDestination();
-	const mixer = new Tone.Gain(0.75).toDestination();
+	const masterLimiter = new Tone.Limiter(-5).toDestination();
+	const mixer = new Tone.Gain().connect(masterLimiter);
 	
 	// Custom Snare
-	const snare = new Tone.AmplitudeEnvelope(0.01, 0.374, 0.001, 1.0).toDestination();
-	const membrane = new Tone.MembraneSynth().toDestination();
+	const snareLimiter = new Tone.Limiter(-1).connect(mixer);
+	const snareCheby = new Tone.Chebyshev(1).connect(snareLimiter);
+	const snare = new Tone.AmplitudeEnvelope().connect(snareCheby);
+	const membrane = new Tone.MembraneSynth().connect(snareCheby);
 	membrane.pitchDecay = 0;
 	membrane.frequency.value = 160;
 	membrane.envelope.attack = 0.005;
@@ -24,12 +27,19 @@
 	const snareNoise = new Tone.Noise().connect(snareFilter).start();
 
 	// Kick
-	const kick = new Tone.MembraneSynth().connect(mixer);
+	const kickLimiter = new Tone.Limiter(-1).connect(mixer);
+	const kickDistort = new Tone.Distortion(0.8).connect(kickLimiter);
+	const kickCheby = new Tone.Chebyshev(1).connect(kickDistort);
+	const kick = new Tone.MembraneSynth().connect(kickCheby);
 
 	// Metallic Synths (Hats/Cymbal)
-	const metal_one = new Tone.MetalSynth().connect(mixer);
-	const metal_two = new Tone.MetalSynth().connect(mixer);
-	// mixer.connect(reverb);
+	const metalOneLimiter = new Tone.Limiter(-1).connect(mixer)
+	const metalOneCheby = new Tone.Chebyshev(1).connect(metalOneLimiter);
+	const metalOne = new Tone.MetalSynth().connect(metalOneCheby);
+
+	const metalTwoLimiter = new Tone.Limiter(-1).connect(mixer)
+	const metalTwoCheby = new Tone.Chebyshev(1).connect(metalTwoLimiter);
+	const metalTwo = new Tone.MetalSynth().connect(metalTwoCheby);
 
 	// Toms (hi/low)
 	const tomLow = new Tone.MembraneSynth().connect(mixer);
@@ -45,8 +55,8 @@
 		<Grid
 			parameters={params}
 			kick={kick}
-			metalOne={metal_one}
-			metalTwo={metal_two}
+			metalOne={metalOne}
+			metalTwo={metalTwo}
 			snare={snare}
 			tomLow={tomLow}
 			tomHi={tomHi}
@@ -54,10 +64,30 @@
 		/>
 		{#if params}
 		<div class="synth-controls">
-			<Snare filter={snareFilter} envelope={snare} parameters={params}/>
-			<Kick instrument={kick} parameters={params}/>
-			<Metal id="metal_one" instrument={metal_one} parameters={params} />
-			<Metal id="metal_two" instrument={metal_two} parameters={params}/>
+			<Snare 
+				filter={snareFilter}
+				waveshaper={snareCheby} 
+				envelope={snare} 
+				parameters={params}
+			/>
+			<Kick 
+				instrument={kick} 
+				distortion={kickDistort}
+				limiter={kickLimiter} 
+				parameters={params}
+			/>
+			<Metal 
+				id="metalOne" 
+				instrument={metalOne} 
+				cheby={metalOneCheby} 
+				parameters={params} 
+			/>
+			<Metal 
+				id="metalTwo" 
+				instrument={metalTwo} 
+				cheby={metalTwoCheby}
+				parameters={params}
+			/>
 			<TomLow instrument={tomLow} parameters={params} />
 			<TomHi instrument={tomHi} parameters={params} />
 		</div>
