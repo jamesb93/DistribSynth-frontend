@@ -36,8 +36,9 @@
     let pos: number = 0; // Init a grid position
     $: Tone.Transport.bpm.value = bpm
 
-    const updatePlayStatus = () => {
-        if (play) {
+    const updatePlayStatus = (status) => {
+        play = status
+        if (status) {
             Tone.start();
             Tone.Transport.start();
             loop.start();
@@ -46,7 +47,6 @@
             loop.stop();
         }
     }
-    $: play, updatePlayStatus();
     // Socket
     const sync = () => {socket.emit('sync', pos)}
 
@@ -54,7 +54,9 @@
 
     socket.on('bpm', (data) => {bpm=data});
 
-    socket.on('play', (data) => {play=data})
+    socket.on('play', (data) => {
+        updatePlayStatus(data)
+    })
 
     socket.on('grid', (e) => {
         grid = e;
@@ -135,12 +137,12 @@
 
 
     const startLoop = () => {
-        play = true;
+        updatePlayStatus(true)
         socket.emit('play', play)
     }
 
     const stopLoop = () => {
-        play = false
+        updatePlayStatus(false)
         socket.emit('play', play)
     }
 
