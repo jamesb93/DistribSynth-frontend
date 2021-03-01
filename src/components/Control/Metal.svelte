@@ -6,14 +6,16 @@
     import Presets from "./Presets.svelte";
 
     export let instrument;
+    export let cheby;
     export let parameters;
-    export let id: string = "metal_one"
+    export let id: string = "metalOne"
 
     $: instrument.frequency.value = parameters[id].frequency;
     $: instrument.harmonicity = parameters[id].harmonicity;
     $: instrument.modulationIndex = parameters[id].modulationIndex;
     $: instrument.resonance = parameters[id].resonance;
     $: instrument.octaves = parameters[id].octaves;
+    $: cheby.order = parameters[id].order;
 
     const uFrequency = () => {
         socket.emit('params::'+id, 'frequency', parameters[id].frequency)
@@ -35,11 +37,16 @@
         socket.emit('params::'+id, 'octaves', parameters[id].octaves)
     }
 
+    const uOrder = () => {
+        socket.emit('params::'+id, 'order', parameters[id].order)
+    }
+
     socket.on('params::'+id+'::frequency', (data) => {parameters[id].frequency = data})
     socket.on('params::'+id+'::harmonicity', (data) => {parameters[id].harmonicity = data})
     socket.on('params::'+id+'::modulationIndex', (data) => {parameters[id].modulationIndex = data})
     socket.on('params::'+id+'::resonance', (data) => {parameters[id].resonance = data})
     socket.on('params::'+id+'::octaves', (data) => {parameters[id].octaves = data})
+    socket.on('params::'+id+'::order', (data) => {parameters[id].order = data})
 
 </script>
 
@@ -50,6 +57,7 @@
     <Slider min="0.01" max="32" step="0.1" title="Index" bind:value={parameters[id].modulationIndex} func={uModulationIndex} />
     <Slider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
     <Slider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
+    <Slider min="1" max="50" step="1" title="waveshape" bind:value={parameters[id].order} func={uOrder} />
     <Presets bind:data={parameters} key={'snare'} />
 
 </ControlContainer>
