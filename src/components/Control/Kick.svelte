@@ -5,6 +5,8 @@
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
 
+    export let distortion;
+    export let limiter;
     export let instrument;
     export let parameters;
 
@@ -14,6 +16,7 @@
     $: instrument.envelope.sustain = parameters.kick.sustain;
     $: instrument.envelope.decay = parameters.kick.decay;
     $: instrument.envelope.release = parameters.kick.release;
+    $: distortion.distortion = parameters.kick.distortion;
 
 
     const uFrequency = () => {
@@ -38,7 +41,12 @@
     const uSustain = () => {
         socket.emit('params::kick', 'sustain', parameters.kick.sustain)
     };
+
+    const uDistortion = () => {
+        socket.emit('params::kick', 'distortion', parameters.kick.distortion)
+    }
     
+    socket.on('params::kick::distortion', (data) => {parameters.kick.distortion = data});
     socket.on('params::kick::frequency', (data) => {parameters.kick.frequency = data});
     socket.on('params::kick::octaves', (data) => {parameters.kick.octaves = data});
     socket.on('params::kick::attack', (data) => {parameters.kick.attack = data});
@@ -55,5 +63,6 @@
     <Slider title="Decay" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.decay} func={uDecay} />
     <Slider title="Sustain" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.sustain} func={uSustain} />
     <Slider title="Release" min="0.0" max="1.4" step="0.05" bind:value={parameters.kick.release} func={uRelease} />
-    <Presets bind:data={parameters} key={'snare'} />
+    <Slider title="Distortion" min="0.0" max="1.0" step="0.01" bind:value={parameters.kick.distortion} func={uDistortion} />
+    <Presets bind:data={parameters} key={'kick'} />
 </ControlContainer>
