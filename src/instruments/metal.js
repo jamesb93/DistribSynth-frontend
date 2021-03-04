@@ -8,5 +8,8 @@ const source = new Tone.MetalSynth().connect(waveshaper);
 export const metal = {
     out,
     waveshaper,
-    source
+    source,
+    trigger: (time) => {
+        source.triggerAttackRelease(source.frequency.value, "8n", time)
+    }
 }
