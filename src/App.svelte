@@ -18,8 +18,20 @@
 		params = JSON.parse(humanParams)
 	}
 
+	const masterLimiter = new Tone.Limiter(-5).toDestination();
+	const masterGain = new Tone.Gain().connect(masterLimiter);
 
+	const metal1 = Object.create(metal)
+	const metal2 = Object.create(metal)
+	const fm1 = Object.create(fm)
+	const fm2 = Object.create(fm)
 
+	kick.out.connect(masterGain)
+	snare.out.connect(masterGain)
+	metal1.out.connect(masterGain)
+	metal2.out.connect(masterGain)
+	fm1.out.connect(masterGain)
+	fm2.out.connect(masterGain)
 
 	let params = null;
 	socket.on('params', (e) => {params = e}) // get all params in one message
