@@ -34,7 +34,7 @@
 	fm2.out.connect(masterGain)
 
 	let params = null;
-	socket.on('params', (e) => {params = e}) // get all params in one message
+	socket.on('params', (data) => {params = data}) // get all params in one message
 </script>
 	
 <main>
