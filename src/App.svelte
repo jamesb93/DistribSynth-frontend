@@ -7,42 +7,10 @@
 	import Metal from "./components/Control/Metal.svelte";
 	import FM from "./components/Control/FM.svelte";
 
-	// const reverb = new Tone.Reverb().toDestination();
-	const masterLimiter = new Tone.Limiter(-5).toDestination();
-	const mixer = new Tone.Gain().connect(masterLimiter);
-	
-	// Custom Snare
-	const snareLimiter = new Tone.Limiter(-1).connect(mixer);
-	const snareCheby = new Tone.Chebyshev(1).connect(snareLimiter);
-	const snare = new Tone.AmplitudeEnvelope().connect(snareCheby);
-	const membrane = new Tone.MembraneSynth().connect(snareCheby);
-	membrane.pitchDecay = 0;
-	membrane.frequency.value = 160;
-	membrane.envelope.attack = 0.005;
-	membrane.envelope.decay = 0.08;
-	membrane.envelope.sustain = 0.01;
-	membrane.envelope.release = 0.01;
-	const snareFilter = new Tone.Filter(2750, "bandpass", -12).connect(snare);
-	const snareNoise = new Tone.Noise().connect(snareFilter).start();
 
-	// Kick
-	const kickLimiter = new Tone.Limiter(-1).connect(mixer);
-	const kickDistort = new Tone.Distortion(0.8).connect(kickLimiter);
-	const kickCheby = new Tone.Chebyshev(1).connect(kickDistort);
-	const kick = new Tone.MembraneSynth().connect(kickCheby);
 
-	// Metallic Synths (Hats/Cymbal)
-	const metalOneLimiter = new Tone.Limiter(-1).connect(mixer)
-	const metalOneCheby = new Tone.Chebyshev(1).connect(metalOneLimiter);
-	const metalOne = new Tone.MetalSynth().connect(metalOneCheby);
 
-	const metalTwoLimiter = new Tone.Limiter(-1).connect(mixer)
-	const metalTwoCheby = new Tone.Chebyshev(1).connect(metalTwoLimiter);
-	const metalTwo = new Tone.MetalSynth().connect(metalTwoCheby);
 
-	// Toms (hi/low)
-	const tomLow = new Tone.MembraneSynth().connect(mixer);
-	const tomHi = new Tone.MembraneSynth().connect(mixer);
 
 	let params = null;
 	socket.on('params', (e) => {params = e}) // get all params in one message
