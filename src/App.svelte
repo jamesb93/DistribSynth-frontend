@@ -36,56 +36,68 @@
 	let params = null;
 	socket.on('params', (data) => {params = data}) // get all params in one message
 </script>
-	
+
 <main>
+	<textarea bind:value={humanParams} on:input={handMade} class="editor"/>
 	<div class="main-layout">
 		<span class="connected">{$numUsers} are currently connected.</span>
 		<Grid
 			parameters={params}
 			kick={kick}
-			metalOne={metalOne}
-			metalTwo={metalTwo}
+			metal1={metal1}
+			metal2={metal2}
 			snare={snare}
-			tomLow={tomLow}
-			tomHi={tomHi}
-			snareMembrane={membrane}
+			fm1={fm1}
+			fm2={fm2}
 		/>
 		{#if params}
-		<div class="synth-controls">
-			<Snare 
-				filter={snareFilter}
-				waveshaper={snareCheby} 
-				envelope={snare} 
-				parameters={params}
-			/>
-			<Kick 
-				instrument={kick} 
-				distortion={kickDistort}
-				limiter={kickLimiter} 
-				parameters={params}
-			/>
-			<Metal 
-				id="metalOne" 
-				instrument={metalOne} 
-				cheby={metalOneCheby} 
-				parameters={params} 
-			/>
-			<Metal 
-				id="metalTwo" 
-				instrument={metalTwo} 
-				cheby={metalTwoCheby}
-				parameters={params}
-			/>
-			<TomLow instrument={tomLow} parameters={params} />
-			<TomHi instrument={tomHi} parameters={params} />
-		</div>
+			<div class="synth-controls">
+				<Snare 
+					instrument={snare}
+					parameters={params}
+				/>
+				<Kick 
+					instrument={kick}
+					parameters={params}
+				/>
+				<Metal 
+					instrument={metal1} 
+					parameters={params}
+					id="metal1"
+				/>
+				<Metal 
+					instrument={metal2} 
+					parameters={params}
+					id="metal2"
+				/>
+				<FM
+					instrument={fm1}
+					parameters={params}
+					id="fm1"
+				/>
+				<FM
+					instrument={fm2}
+					parameters={params}
+					id="fm2"
+				/>	
+			</div>
 		{:else}
-			No connection to server?
+			No connection to server
 		{/if}
 	</div>
 </main>
+
 	
 <style>
+	.editor {
+		min-width: 30%;
+		min-height: 200px;
+	}
+	.test-rack {
+		display: flex;
+		flex-direction: column;
+		width: 50%;
+	}
 	.main-layout {
 		display: flex;
 		flex-direction: column;
