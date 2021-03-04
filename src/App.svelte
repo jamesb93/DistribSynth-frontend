@@ -7,6 +7,10 @@
 	import Metal from "./components/Control/Metal.svelte";
 	import FM from "./components/Control/FM.svelte";
 
+	import { fm } from './instruments/fm.js'
+	import { snare } from './instruments/snare.js'
+	import { kick } from './instruments/kick.js'
+	import { metal } from './instruments/metal.js'
 
 
 
