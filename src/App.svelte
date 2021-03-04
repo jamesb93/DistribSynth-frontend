@@ -5,8 +5,7 @@
 	import Snare from "./components/Control/Snare.svelte";
 	import Kick from "./components/Control/Kick.svelte";
 	import Metal from "./components/Control/Metal.svelte";
-	import TomLow from "./components/Control/TomLow.svelte";
-	import TomHi from "./components/Control/TomHi.svelte";
+	import FM from "./components/Control/FM.svelte";
 
 	// const reverb = new Tone.Reverb().toDestination();
 	const masterLimiter = new Tone.Limiter(-5).toDestination();
