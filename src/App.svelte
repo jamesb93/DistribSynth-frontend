@@ -12,6 +12,11 @@
 	import { kick } from './instruments/kick.js'
 	import { metal } from './instruments/metal.js'
 
+	let humanParams = ""
+	$: humanParams = JSON.stringify(params, null, 4)
+	const handMade = () => {
+		params = JSON.parse(humanParams)
+	}
 
 
 
