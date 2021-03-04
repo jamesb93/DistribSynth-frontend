@@ -4,12 +4,11 @@
     // Instruments
     export let parameters;
     export let kick;
-    export let metalOne;
-    export let metalTwo;
     export let snare;
-    export let snareMembrane;
-    export let tomLow;
-    export let tomHi;
+    export let metal1;
+    export let metal2;
+    export let fm1;
+    export let fm2;
 
     // Metronome
     let clockDirection: number = 1;
@@ -65,37 +64,37 @@
 
     const sendGrid = () => {socket.emit('grid', grid)}
     
-    const SNARE = 0;
-    const METALONE = 1;
-    const METALTWO = 2;
-    const TOMLOW = 3;
-    const TOMHI = 4;
+    const FM1 = 0
+    const FM2 = 1
+    const M1 = 2
+    const M2 = 3
+    const SNARE = 4;
     const KICK = 5;
-    // Logic for the Clock
-    const loop = new Tone.Loop((time) => {
-        if (grid[TOMHI][pos]) {
-            tomHi.triggerAttackRelease(tomHi.frequency.value, "8n", time)
-        }
 
-        if (grid[TOMLOW][pos]) {
-            tomLow.triggerAttackRelease(tomHi.frequency.value, "8n", time)
-        }
+    const loop = new Tone.Loop(time => {
 
         if (grid[SNARE][pos]) {
-            snare.triggerAttackRelease("16n", time);
-            snareMembrane.triggerAttackRelease(snareMembrane.frequency.value, "8n", time);
+            snare.trigger(time)
         }
 
-        if (grid[METALONE][pos]) {
-            metalOne.triggerAttackRelease(metalOne.frequency.value, "8n", time);
+        if (grid[M1][pos]) {
+            metal1.trigger(time+0.000001)
         }
         
-        if (grid[METALTWO][pos]) {
-            metalTwo.triggerAttackRelease(metalTwo.frequency.value, "8n", time);
+        if (grid[M2][pos]) {
+            metal2.trigger(time+0.000002)
         }
 
         if (grid[KICK][pos]) {
-            kick.triggerAttackRelease(parameters.kick.frequency, "8n", time);
+            kick.trigger(time)
+        }
+
+        if (grid[FM1][pos]) {
+            fm1.trigger(time)
+        }
+
+        if (grid[FM2][pos]) {
+            fm2.trigger(time)
         }
 
         if (clockMode === "forward") {
