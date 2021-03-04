@@ -5,19 +5,20 @@
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
 
-    export let distortion;
-    export let limiter;
     export let instrument;
     export let parameters;
 
-    $: instrument.frequency.value = parameters.kick.frequency;
-    $: instrument.octaves = parameters.kick.octaves;
-    $: instrument.envelope.attack = parameters.kick.attack;
-    $: instrument.envelope.sustain = parameters.kick.sustain;
-    $: instrument.envelope.decay = parameters.kick.decay;
-    $: instrument.envelope.release = parameters.kick.release;
-    $: distortion.distortion = parameters.kick.distortion;
+    $: instrument.waveshaper.octaves = parameters.kick.octaves;
+    $: instrument.membrane.frequency.value = parameters.kick.frequency;
+    $: instrument.membrane.envelope.attack = parameters.kick.attack;
+    $: instrument.membrane.envelope.sustain = parameters.kick.sustain;
+    $: instrument.membrane.envelope.decay = parameters.kick.decay;
+    $: instrument.membrane.envelope.release = parameters.kick.release;
+    $: instrument.distortion.distortion = parameters.kick.distortion;
 
+    const template = (instrument, parameter) => {
+        socket.emit('params::'+instrument, parameter, parameters[instrument][parameter])
+    }
 
     const uFrequency = () => {
         socket.emit('params::kick', 'frequency', parameters.kick.frequency)

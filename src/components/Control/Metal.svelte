@@ -6,16 +6,15 @@
     import Presets from "./Presets.svelte";
 
     export let instrument;
-    export let cheby;
+    export let id;
     export let parameters;
-    export let id: string = "metalOne"
 
-    $: instrument.frequency.value = parameters[id].frequency;
-    $: instrument.harmonicity = parameters[id].harmonicity;
-    $: instrument.modulationIndex = parameters[id].modulationIndex;
-    $: instrument.resonance = parameters[id].resonance;
-    $: instrument.octaves = parameters[id].octaves;
-    $: cheby.order = parameters[id].order;
+    $: instrument.source.frequency.value = parameters[id].frequency;
+    $: instrument.source.harmonicity = parameters[id].harmonicity;
+    $: instrument.source.modulationIndex = parameters[id].modulationIndex;
+    $: instrument.source.resonance = parameters[id].resonance;
+    $: instrument.source.octaves = parameters[id].octaves;
+    $: instrument.waveshaper.order = parameters[id].order;
 
     const uFrequency = () => {
         socket.emit('params::'+id, 'frequency', parameters[id].frequency)

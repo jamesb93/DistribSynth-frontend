@@ -5,17 +5,15 @@
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
 
-    export let waveshaper;
-    export let filter;
-    export let envelope;
+    export let instrument;
     export let parameters;
 
-    $: filter.frequency.value = parameters.snare.frequency
-    $: envelope.attack = parameters.snare.attack
-    $: envelope.decay = parameters.snare.decay
-    $: envelope.release = parameters.snare.release
-    $: envelope.sustain = parameters.snare.sustain
-    $: waveshaper.order = parameters.snare.order
+    $: instrument.membrane.frequency.value = parameters.snare.frequency
+    $: instrument.env.attack = parameters.snare.attack
+    $: instrument.env.decay = parameters.snare.decay
+    $: instrument.env.release = parameters.snare.release
+    $: instrument.env.sustain = parameters.snare.sustain
+    $: instrument.waveshaper.order = parameters.snare.order
 
     const uFrequency = () => {
         socket.emit('params::snare', 'frequency', parameters.snare.frequency);
