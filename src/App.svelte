@@ -6,6 +6,7 @@
 	import Kick from "./components/Control/Kick.svelte";
 	import Metal from "./components/Control/Metal.svelte";
 	import FM from "./components/Control/FM.svelte";
+	import Editor from "./components/Editor.svelte";
 
 	import { fm } from './instruments/fm.js'
 	import { snare } from './instruments/snare.js'
@@ -14,9 +15,6 @@
 
 	let humanParams = ""
 	$: humanParams = JSON.stringify(params, null, 4)
-	const handMade = () => {
-		params = JSON.parse(humanParams)
-	}
 
 	const masterLimiter = new Tone.Limiter(-5).toDestination();
 	const masterGain = new Tone.Gain().connect(masterLimiter);
@@ -38,11 +36,10 @@
 </script>
 
 <main>
-	<textarea bind:value={humanParams} on:input={handMade} class="editor"/>
+	<Editor bind:text={humanParams} />
 	<div class="main-layout">
 		<span class="connected">{$numUsers} are currently connected.</span>
 		<Grid
-			parameters={params}
 			kick={kick}
 			metal1={metal1}
 			metal2={metal2}
@@ -54,30 +51,30 @@
 			<div class="synth-controls">
 				<Snare 
 					instrument={snare}
-					parameters={params}
+					bind:parameters={params}
 				/>
 				<Kick 
 					instrument={kick}
-					parameters={params}
+					bind:parameters={params}
 				/>
 				<Metal 
 					instrument={metal1} 
-					parameters={params}
+					bind:parameters={params}
 					id="metal1"
 				/>
 				<Metal 
 					instrument={metal2} 
-					parameters={params}
+					bind:parameters={params}
 					id="metal2"
 				/>
 				<FM
 					instrument={fm1}
-					parameters={params}
+					bind:parameters={params}
 					id="fm1"
 				/>
 				<FM
 					instrument={fm2}
-					parameters={params}
+					bind:parameters={params}
 					id="fm2"
 				/>	
 			</div>
@@ -92,6 +89,7 @@
 	.editor {
 		min-width: 30%;
 		min-height: 200px;
+		outline: none;
 	}
 	.test-rack {
 		display: flex;
@@ -119,7 +117,7 @@
 	main {
 		text-align: center;
 		padding: 1em;
-		max-width: 240px;
+		max-width: 100%;
 		margin: 0 auto;
 	}
 	
