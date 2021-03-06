@@ -190,22 +190,19 @@
             grid[above][col] = temp[invert][col]
         }
         sendGrid()
+    }
 
     const clearGrid = () => {
-        for (var i=0; i < grid.length; i++) {
-            for (var j=0; j < grid[i].length; j++) {
-                grid[i][j] = false;
-            }
-        }
+        grid = grid.map(gridRow => 
+            gridRow.map(cell => false)
+        )
         sendGrid()
     }
 
     const randomiseGrid = () => {
-        for (var i=0; i < grid.length; i++) {
-            for (var j=0; j < grid[i].length; j++) {
-                grid[i][j] = Math.random() < 0.2;
-            }
-        }
+        grid = grid.map(gridRow =>
+            gridRow.map(cell => Math.random() < 0.2)
+        )
         sendGrid()
     }
 
