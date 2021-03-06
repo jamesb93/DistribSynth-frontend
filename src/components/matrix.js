@@ -35,3 +35,17 @@ export const shiftColumnUp = (grid, col) => {
         grid[above][col] = temp[invert][col]
     }
 }
+
+export const mirror = (arr) => {
+    let halfway = Math.floor(arr.length/2)
+    let temp = new Array(arr.length).fill(false)
+
+    for (let i=0; i < arr.length; i++) {
+        if (i < halfway) {
+            temp[i] = arr[i]
+        } else {
+            temp[i] = arr[arr.length-i-1]
+        }
+    }
+    return temp
+}
