@@ -212,20 +212,19 @@
     };
 </script>
 
-
 <div class="grid-container">
     <div class="grid">
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
-                <!-- {#if x === 0}
-                    {#each row as column, y}
-                        <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
-                    {/each}
-                {/if} -->
+                    {#if x === 0}
+                        {#each row as column, y}
+                            <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
+                        {/each}
+                    {/if}
                 </div>
                 <div class="cell-container">
-                    <!-- <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1)}}/> -->
+                    <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1); sendGrid()}}/>
                     {#each row as column, y}
                         <Cell
                         selected={column}
@@ -233,14 +232,14 @@
                         toggleFun = {()=> handleClick(x, y)}
                         />
                     {/each}
-                    <!-- <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1)}}/> -->
+                    <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1); sendGrid()}}/>
                 </div>
                 <div class="cell-container">
-                <!-- {#if x === grid.length-1}
+                {#if x === grid.length-1}
                     {#each row as column, y}
                         <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
                     {/each}
-                {/if} -->
+                {/if}
                 </div>
     
             {/each}
