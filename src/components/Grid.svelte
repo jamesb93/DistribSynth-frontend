@@ -245,20 +245,35 @@
             {/each}
         {/if}
     </div>
-    <div class="grid-controls">
-        <!-- TODO: EACH PART OF THE GRID-CONTROLS SHOULD BE A COMPONENT -->
-        <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
-        <div class="clock-controls">
-            <BoxButton func={startLoop} text="start"/>
-            <BoxButton func={stopLoop} text="stop"/>
-            <BoxButton func={sync} text="sync" />
-        </div>
-        <Clock bind:value={clockMode}/>
-        <div class="clock-controls">
-            <BoxButton func={clearGrid} text="clear" />
-            <BoxButton func={randomiseGrid} text="randomise" />
+</div>
 
-        </div>
+<div class="pattern-generation">
+    <span>euclidian pattern generation</span>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[0]} func={() => euclid(0)}/>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[1]} func={() => euclid(1)}/>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[2]} func={() => euclid(2)}/>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[3]} func={() => euclid(3)}/>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[4]} func={() => euclid(4)}/>
+    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[5]} func={() => euclid(5)}/>
+</div>
+
+<div class="transforms">
+    transforms
+    <BoxButton func={mirrorGrid} text="mirror" />
+    <BoxButton func={invertGrid} text="invert" />
+</div>
+
+<div class="grid-controls">
+    <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={stepMultiplier}/>
+    <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
+    <div class="clock-controls">
+        <BoxButton func={startLoop} text=">"/>
+        <BoxButton func={stopLoop} text="□"/>
+    </div>
+    <Clock bind:value={clockMode}/>
+    <div class="clock-controls">
+        <BoxButton func={clearGrid} text="clear" />
+        <BoxButton func={randomiseGrid} text="randomise" />
     </div>
 </div>
 
