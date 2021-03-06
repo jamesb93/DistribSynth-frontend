@@ -5,6 +5,7 @@
     export let title: string = "";
     export let step: string = "any";
     export let func = () => {return};
+    export let showValue = true;
 </script>
 
 <div class="pad">
@@ -14,7 +15,9 @@
     <input class="slider" type="range" min={min} max={max} step={step} on:input={func} bind:value={value} />
     <span class="text max">{max}</span>
 </div>
-<span class="text value">{value}</span>
+{#if showValue}
+    <span class="text value">{value}</span>
+{/if}
 </div>
 
 
