@@ -29,6 +29,14 @@
 
     // Metronome
     let clockDirection: number = 1;
+    let stepMultiplier: number = 1.0;
+    let bpm: number = 120; // BPM
+    let grid = [];
+    let gridValid: boolean = false;
+    let play: boolean = false;
+    let pos: number = 0; // Init a grid position
+    let internalPos: number = 0;
+    $: Tone.Transport.bpm.value = bpm
     
     // Components
     import Arrow from './Arrow.svelte';
@@ -45,12 +53,6 @@
 	let clockMode: clockStates;
 	socket.on('clock::mode', (data) => {clockMode = data});
 
-    let grid = [];
-    let gridValid: boolean = false;
-    let play: boolean;
-    let bpm: number = 120; // BPM
-    let pos: number = 0; // Init a grid position
-    $: Tone.Transport.bpm.value = bpm
 
     const updatePlayStatus = (status) => {
         play = status
