@@ -19,7 +19,6 @@
     }
 
     // Instruments
-    export let parameters;
     export let kick;
     export let snare;
     export let metal1;
@@ -48,11 +47,17 @@
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
 
-// Clock Modes
+    // Clock Modes
 	type clockStates = "forward" | "rebound" | "wander"
 	let clockMode: clockStates;
 	socket.on('clock::mode', (data) => {clockMode = data});
 
+    // Socket
+    const sync = () => {socket.emit('sync', pos)}
+
+    socket.on('sync', (data) => {pos=data});
+
+    socket.on('bpm', (data) => {bpm=data});
 
     const updatePlayStatus = (status) => {
         play = status
@@ -65,12 +70,6 @@
             loop.stop();
         }
     }
-    // Socket
-    const sync = () => {socket.emit('sync', pos)}
-
-    socket.on('sync', (data) => {pos=data});
-
-    socket.on('bpm', (data) => {bpm=data});
 
     socket.on('play', (data) => {
         updatePlayStatus(data)
@@ -81,7 +80,9 @@
         gridValid = true;
     })
 
-    const sendGrid = () => {socket.emit('grid', grid)}
+    const sendGrid = () => {
+        socket.emit('grid', grid
+    )}
     
     const FM1 = 0
     const FM2 = 1
@@ -91,17 +92,16 @@
     const KICK = 5;
 
     const loop = new Tone.Loop(time => {
-
         if (grid[SNARE][pos]) {
             snare.trigger(time)
         }
 
         if (grid[M1][pos]) {
-            metal1.trigger(time+0.000001)
+            metal1.trigger(time)
         }
         
         if (grid[M2][pos]) {
-            metal2.trigger(time+0.000002)
+            metal2.trigger(time)
         }
 
         if (grid[KICK][pos]) {
@@ -168,7 +168,9 @@
         socket.emit('play', play)
     }
 
-    const sendBpm = () => {socket.emit('bpm', bpm)}
+    const sendBpm = () => {
+        socket.emit('bpm', bpm)
+    }
 
     const shiftColumnDown = (col) => {
         let temp = deepCopy(grid) // deep copy
@@ -176,6 +178,7 @@
             let below = (i + 1) % grid.length;
             grid[below][col] = temp[i][col]
         }
+        sendGrid()
     }
 
     const shiftColumnUp = (col) => {
