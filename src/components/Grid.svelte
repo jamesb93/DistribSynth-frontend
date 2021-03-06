@@ -1,5 +1,22 @@
 <script type="ts">
     import * as Tone from "tone";
+    import { getPattern } from "./euclid.js";
+    import { mirror } from "./matrix.js";
+
+    // Euclidian Pattern Generation
+    let euclidSteps = new Array(6).fill(0)
+    const euclid = (idx) => {
+        grid[idx] = getPattern(euclidSteps[idx]+1, 16)
+    }
+
+    // Mirror
+    const mirrorGrid = () => {
+        grid = grid.map(x => mirror(x))
+    }
+
+    const invertGrid = () => {
+        grid = grid.map(x => x.reverse())
+    }
 
     // Instruments
     export let parameters;
