@@ -215,7 +215,6 @@
     };
 </script>
 
-<svelte:window on:keydown={handleKey} />
 
 <div class="grid-container">
     <div class="grid">
