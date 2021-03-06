@@ -189,34 +189,7 @@
             }
             grid[above][col] = temp[invert][col]
         }
-    }
-    
-    const handleKey = (key) => {
-        if (key.keyCode === 37) {
-            for (var i=0; i < grid.length; i++) {
-                grid[i] = rotate(grid[i], 1)
-            }
-        }
-
-        if (key.keyCode === 39) {
-            for (var i=0; i < grid.length; i++) {
-                grid[i] = rotate(grid[i], -1)
-            }
-        }
-
-        if (key.keyCode === 38) {
-            for (var i=0; i < grid[0].length; i++) {
-                shiftColumnUp(i)
-            }
-        }
-
-        if (key.keyCode === 40) {
-            for (var i=0; i < grid[0].length; i++) {
-                shiftColumnDown(i)
-            }
-        }
         sendGrid()
-    };
 
     const clearGrid = () => {
         for (var i=0; i < grid.length; i++) {
