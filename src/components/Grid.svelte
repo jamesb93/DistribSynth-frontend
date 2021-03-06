@@ -117,38 +117,42 @@
         }
 
         if (clockMode === "forward") {
-            pos++
+            internalPos += stepMultiplier
+            pos = Math.round(internalPos)
             pos = wrap(pos, 0, grid[0].length)
 
         } else if (clockMode === "rebound") {
             if (clockDirection === 1) { // if progressing forward
                 if (pos === grid[0].length-1) {
-                    pos--
+                    internalPos -= stepMultiplier
                     clockDirection = 0 // change to backward
                 } else { // anywhere else
-                    pos++
+                    internalPos += stepMultiplier
                 }
             } else if (clockDirection === 0) { // if progressing backward
                 if (pos === 0) { // if we're at the left boundary
-                    pos++
+                    internalPos += stepMultiplier
                     clockDirection = 1 // change to forward
                 } else {
-                    pos--
-                }
-            }   
+                    internalPos -= stepMultiplier
+                }   
+            } 
+            pos = Math.round(internalPos)  
         } else if (clockMode === "wander") {
             if (pos === 0) {
-                pos++
-            } else if (pos === grid[0].length-1) {
-                pos--
+                internalPos += stepMultiplier
+            } else if (pos >= grid[0].length-1) {
+                internalPos -= stepMultiplier
             } else {
                 let randomWalk = Math.random() <= 0.5;
                 if (randomWalk) {
-                    pos++
+                    internalPos += stepMultiplier
                 } else {
-                    pos--
+                    internalPos -= stepMultiplier
                 }
             }
+            pos = Math.round(internalPos)
+            pos = Math.min(Math.max(pos, 0), grid[0].length-1)
         }
         
     }, "16n").start(0);
