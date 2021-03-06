@@ -5,34 +5,37 @@
     
     let hovered;
 
-    const enter = () => {
-        hovered = true;
-    }
-
-    const leave = () => {
-        hovered = false;
-    }
+    const enter = () => {hovered = true}
+    const leave = () => {hovered = false}
 </script>
 
-<div class="container">
+<div 
+    class="container" 
+    class:hidden={!hovered}
+    on:mouseenter={enter} 
+    on:mouseleave={leave} 
+    on:click = {func}>
     <i
-    class="arrow"
-    class:up    = {direction === "up"}
-    class:down  = {direction === "down"}
-    class:right = {direction === "right"}
-    class:left  = {direction === "left"}
-    on:click    = {func}
-    on:mouseenter={enter}
-    on:mouseleave={leave}
-    transition:fade
+        class="arrow"
+        class:up    = {direction === "up"}
+        class:down  = {direction === "down"}
+        class:right = {direction === "right"}
+        class:left  = {direction === "left"}
     />
 </div>
 
 
 <style>
     .container {
-        height: 60px;
-        width: 60px;
+        height: 30px;
+        width: 30px;
+        padding-left: 2px;
+        padding-right: 2px;
+        opacity: 1
+    }
+    .hidden {
+        opacity: 0.15;
+        transition: opacity 0.35s;
     }
     .arrow {
         border: 1px solid grey;
@@ -55,6 +58,7 @@
     .up {
         transform: rotate(-135deg);
         -webkit-transform: rotate(-135deg);
+
     }
     
     .down {
