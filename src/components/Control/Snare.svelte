@@ -8,7 +8,7 @@
     export let instrument;
     export let parameters;
 
-    $: instrument.membrane.frequency.value = parameters.snare.frequency
+    $: instrument.filter.frequency.value = parameters.snare.frequency
     $: instrument.env.attack = parameters.snare.attack
     $: instrument.env.decay = parameters.snare.decay
     $: instrument.env.release = parameters.snare.release
