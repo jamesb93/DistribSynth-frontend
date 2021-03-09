@@ -57,5 +57,5 @@
     <Slider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
     <Slider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
     <Slider min="1" max="50" step="1" title="waveshape" bind:value={parameters[id].order} func={uOrder} />
-    <Presets bind:data={parameters} key={'snare'} />
+    <Presets bind:data={parameters} key={id} />
 </ControlContainer>
