@@ -1,28 +1,27 @@
 <script lang="ts">
 	import * as Tone from "tone";
-	import { numUsers, socket } from "./components/stores.js";
+	import { numUsers, socket, room } from "./components/stores.js";
+	import { fade } from "svelte/transition";
 	import Grid from "./components/Grid.svelte";
 	import Snare from "./components/Control/Snare.svelte";
 	import Kick from "./components/Control/Kick.svelte";
 	import Metal from "./components/Control/Metal.svelte";
 	import FM from "./components/Control/FM.svelte";
 	import Editor from "./components/Editor.svelte";
+	import RoomPrompt from "./components/RoomPrompt.svelte";
 
-	import { fm } from './instruments/fm.js'
+	import { ThreeOp } from './instruments/fm.js'
 	import { snare } from './instruments/snare.js'
 	import { kick } from './instruments/kick.js'
-	import { metal } from './instruments/metal.js'
-
-	let humanParams = ""
-	$: humanParams = JSON.stringify(params, null, 4)
+	import { MetalSynthesis } from './instruments/metal.js'
 
 	const masterLimiter = new Tone.Limiter(-5).toDestination();
 	const masterGain = new Tone.Gain().connect(masterLimiter);
 
-	const metal1 = Object.create(metal)
-	const metal2 = Object.create(metal)
-	const fm1 = Object.create(fm)
-	const fm2 = Object.create(fm)
+	const metal1 = new MetalSynthesis()
+	const metal2 = new MetalSynthesis()
+	const fm1 = new ThreeOp()
+	const fm2 = new ThreeOp()
 
 	kick.out.connect(masterGain)
 	snare.out.connect(masterGain)
