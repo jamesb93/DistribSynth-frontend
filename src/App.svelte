@@ -31,56 +31,64 @@
 	fm2.out.connect(masterGain)
 
 	let params = null;
-	socket.on('params', (data) => {params = data}) // get all params in one message
+	socket.on('params', (data) => {params = data; console.log(params)}) // get all params in one message
+	let humanParams = ""
+	$: humanParams = JSON.stringify(params, null, 4)
 </script>
-
 <main>
-	<Editor bind:text={humanParams} />
-	<div class="main-layout">
-		<span class="connected">{$numUsers} are currently connected.</span>
-		<Grid
-			kick={kick}
-			metal1={metal1}
-			metal2={metal2}
-			snare={snare}
-			fm1={fm1}
-			fm2={fm2}
-		/>
-		{#if params}
-			<div class="synth-controls">
-				<Snare 
-					instrument={snare}
-					bind:parameters={params}
-				/>
-				<Kick 
-					instrument={kick}
-					bind:parameters={params}
-				/>
-				<Metal 
-					instrument={metal1} 
-					bind:parameters={params}
-					id="metal1"
-				/>
-				<Metal 
-					instrument={metal2} 
-					bind:parameters={params}
-					id="metal2"
-				/>
-				<FM
-					instrument={fm1}
-					bind:parameters={params}
-					id="fm1"
-				/>
-				<FM
-					instrument={fm2}
-					bind:parameters={params}
-					id="fm2"
-				/>	
-			</div>
-		{:else}
-			No connection to server
-		{/if}
-	</div>
+	<RoomPrompt />
+	{#if $room !== ""}
+		<Editor bind:text={humanParams}/>
+		<div class="main-layout" transition:fade="{{duration: 1000}}">
+			{#if $room === ""}
+				<span class="connected">Please connect to a room</span>
+			{:else}
+				<span class="connected">{$numUsers} are currently connected to "{$room}"</span>
+			{/if}
+			<Grid
+				kick={kick}
+				snare={snare}
+				fm1={fm1}
+				fm2={fm2}
+				metal1={metal1}
+				metal2={metal2}
+			/>
+			{#if params}
+				<div class="synth-controls">
+					<Snare 
+						instrument={snare}
+						bind:parameters={params}
+					/>
+					<Kick 
+						instrument={kick}
+						bind:parameters={params}
+					/>
+					<Metal 
+						instrument={metal1} 
+						bind:parameters={params}
+						id="metal1"
+					/>
+					<Metal 
+						instrument={metal2} 
+						bind:parameters={params}
+						id="metal2"
+					/>
+					<FM
+						id="fm1"
+						instrument={fm1}
+						bind:parameters={params}
+					/>
+					<FM
+						id="fm2"
+						instrument={fm2}
+						bind:parameters={params}
+					/>
+				</div>
+			{:else}
+				No connection to server
+			{/if}
+		</div>
+	{/if}
 </main>
 
 	
