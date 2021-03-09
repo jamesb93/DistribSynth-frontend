@@ -1,11 +1,11 @@
 export const getPattern = (pulses, steps) => {
-    if (pulses < 0 || steps < 0 || steps < pulses) {
-        return [];
-    }
-    
     // Create the two arrays
     let first = new Array(pulses).fill([true]);
-    let second = new Array(steps - pulses).fill([false]);
+    let s = steps - pulses;
+    if (s === 0) {
+        return new Array(steps).fill(true)
+    }
+    let second = new Array(s).fill([false]);
     
     let firstLength = first.length;
     let minLength = Math.min(firstLength, second.length);
