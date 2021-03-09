@@ -9,7 +9,7 @@
     export let parameters;
     export let id;
 
-    $: instrument.fund.rampTo(parameters[id].frequency)
+    $: instrument.fund.rampTo(parameters[id].frequency, 0.1)
     $: instrument.c1ratio.rampTo(parameters[id].c1ratio, 0.1)
     $: instrument.c2ratio.rampTo(parameters[id].c2ratio, 0.1)
     $: instrument.c3ratio.rampTo(parameters[id].c3ratio, 0.1)
