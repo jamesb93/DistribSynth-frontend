@@ -1,15 +1,16 @@
 import * as Tone from "tone";
 
-const out = new Tone.Gain(1)
-const limiter = new Tone.Limiter(-1).connect(out)
-const waveshaper = new Tone.Chebyshev(1).connect(limiter);
-const source = new Tone.MetalSynth().connect(waveshaper);
+class MetalSynthesis {
+    constructor() {
+        this.out = new Tone.Gain(1)
+        this.limiter = new Tone.Limiter(-1).connect(this.out)
+        this.waveshaper = new Tone.Chebyshev(1).connect(this.limiter);
+        this.source = new Tone.MetalSynth().connect(this.waveshaper);
+    }
 
-export const metal = {
-    out,
-    waveshaper,
-    source,
-    trigger: (time) => {
-        source.triggerAttackRelease(source.frequency.value, "8n", time)
+    trigger = (time) => {
+        this.source.triggerAttackRelease(this.source.frequency.value, "8n", time)
     }
 }
+
+export {MetalSynthesis}

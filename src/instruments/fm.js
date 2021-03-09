@@ -1,75 +1,74 @@
 import * as Tone from "tone";
 
-let freq = 250
-let _c1ratio = 1
-let _c2ratio = 1
-let _c3ratio = 1
-let _fm3to2 = 0
-let _fm3to1 = 0
-let _fm2to1 = 0
-let c1envLength = 500
-let c2envLength = 500
-let c3envLength = 500
-let envShape = {
-        attackCurve : "exponential",
-        decayCurve : "exponential",
-        attack : 0.1
-}
-
-const out = new Tone.Gain(0.33).toDestination()
-
-// OP 3
-const fm3to2 = new Tone.Multiply()
-const fm3to1 = new Tone.Multiply()
-
-const c3env = new Tone.AmplitudeEnvelope()
-    .fan(out, fm3to2, fm3to1)
-const c3 = new Tone.Oscillator(freq, "sine").start()
-    .connect(c3env)
-const c3freq = new Tone.Multiply().connect(c3.frequency)
-const c3ratio = new Tone.Signal(_c3ratio).connect(c3freq)
-
-// OP 2
-const fm2to1 = new Tone.Multiply()
-const c2env = new Tone.AmplitudeEnvelope()
-    .fan(out, fm2to1)
-const c2 = new Tone.Oscillator(freq, "sine").start()
-    .connect(c2env)
-const c2fb1 = new Tone.Add().connect(c2.frequency)
-const c2freq = new Tone.Multiply().connect(c2fb1)
-const c2ratio = new Tone.Signal(_c2ratio).connect(c2freq) 
-
-// OP 1
-const c1env = new Tone.AmplitudeEnvelope().connect(out)
-const c1 = new Tone.Oscillator(freq, "sine").start()
-    .connect(c1env)
-const c1fb2 = new Tone.Add().connect(c1.frequency)
-const c1fb1 = new Tone.Add().connect(c1fb2)
-const c1freq = new Tone.Multiply().connect(c1fb1)
-const c1ratio = new Tone.Signal().connect(c1freq)   
-
-const fund = new Tone.Signal(freq).fan(
-    c1freq.factor, 
-    c2freq.factor, 
-    c3freq.factor
-)
-
-fm2to1.fan(c1fb2.addend)
-fm3to1.fan(c1fb1.addend)
-fm3to2.fan(c2fb1.addend)
-
-export const fm = {
-    out, fund,
-    c1ratio, c2ratio, c3ratio,
-    fm2to1, fm3to2, fm3to1,
-    c1env, c2env, c3env,
-    c1envLength, c2envLength, c3envLength,
-    trigger: (time) => {
-        c1env.triggerAttack(time)
-        c1env.triggerRelease(time+0.01)
-        c2env.triggerAttack(time)
-        c2env.triggerRelease(time+0.01)
-        c3env.triggerAttack(time)
-        c3env.triggerRelease(time+0.01)
+class ThreeOp {
+    constructor() {
+        this.freq = 250
+        this._c1ratio = 1
+        this._c2ratio = 1
+        this._c3ratio = 1
+        this._fm3to2 = 0
+        this._fm3to1 = 0
+        this._fm2to1 = 0
+        this.c1envLength = 500
+        this.c2envLength = 500
+        this.c3envLength = 500
+        this.envShape = {
+            attackCurve : "exponential",
+            decayCurve : "exponential",
+            attack : 0.1
+        } 
+        
+        this.out = new Tone.Gain(0.33).toDestination()
+        
+        // OP 3
+        this.fm3to2 = new Tone.Multiply()
+        this.fm3to1 = new Tone.Multiply()
+        
+        this.c3env = new Tone.AmplitudeEnvelope()
+            .fan(this.out, this.fm3to2, this.fm3to1)
+        this.c3 = new Tone.Oscillator(this.freq, "sine").start()
+            .connect(this.c3env)
+        this.c3freq = new Tone.Multiply().connect(this.c3.frequency)
+        this.c3ratio = new Tone.Signal(this._c3ratio).connect(this.c3freq)
+        
+        // OP 2
+        this.fm2to1 = new Tone.Multiply()
+        this.c2env = new Tone.AmplitudeEnvelope()
+            .fan(this.out, this.fm2to1)
+        this.c2 = new Tone.Oscillator(this.freq, "sine").start()
+            .connect(this.c2env)
+        this.c2fb1 = new Tone.Add().connect(this.c2.frequency)
+        this.c2freq = new Tone.Multiply().connect(this.c2fb1)
+        this.c2ratio = new Tone.Signal(this._c2ratio).connect(this.c2freq) 
+        
+        // OP 1
+        this.c1env = new Tone.AmplitudeEnvelope().connect(this.out)
+        this.c1 = new Tone.Oscillator(this.freq, "sine").start()
+            .connect(this.c1env)
+        this.c1fb2 = new Tone.Add().connect(this.c1.frequency)
+        this.c1fb1 = new Tone.Add().connect(this.c1fb2)
+        this.c1freq = new Tone.Multiply().connect(this.c1fb1)
+        this.c1ratio = new Tone.Signal().connect(this.c1freq)   
+        
+        this.fund = new Tone.Signal(this.freq).fan(
+            this.c1freq.factor, 
+            this.c2freq.factor, 
+            this.c3freq.factor
+        )
+            
+        this.fm2to1.fan(this.c1fb2.addend)
+        this.fm3to1.fan(this.c1fb1.addend)
+        this.fm3to2.fan(this.c2fb1.addend)
+    }
+    trigger = (time) => {
+        this.c1env.triggerAttack(time)
+        this.c1env.triggerRelease(time+0.01)
+        this.c2env.triggerAttack(time)
+        this.c2env.triggerRelease(time+0.01)
+        this.c3env.triggerAttack(time)
+        this.c3env.triggerRelease(time+0.01)
     }
 }
+
+export {ThreeOp}
+    
