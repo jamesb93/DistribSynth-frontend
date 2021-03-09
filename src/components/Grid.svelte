@@ -2,21 +2,36 @@
     import * as Tone from "tone";
     import { getPattern } from "./euclid.js";
     import { mirror } from "./matrix.js";
+    import ControlTitle from "./Control/ControlTitle.svelte"
 
     // Euclidian Pattern Generation
     let euclidSteps = new Array(6).fill(0)
-    const euclid = (idx) => {
-        grid[idx] = getPattern(euclidSteps[idx]+1, 16)
+    const sendGrid = () => {
+        socket.emit('grid', grid)
     }
+    const euclid = (idx) => {
+        grid[idx] = getPattern(euclidSteps[idx], 16)
+        sendGrid()
+        socket.emit('euclid', euclidSteps)
+    }
+
+    socket.on('euclid', data => {
+        euclidSteps = data
+    })
 
     // Mirror
     const mirrorGrid = () => {
         grid = grid.map(x => mirror(x))
+        sendGrid()
     }
 
     const invertGrid = () => {
         grid = grid.map(x => x.reverse())
+        sendGrid()
     }
+
+    // Grid
+    let mouseDown: boolean = false;
 
     // Instruments
     export let kick;
@@ -43,46 +58,22 @@
     import Clock from "./Control/Clock.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
-    import {fold, wrap} from "./utility";
+    import { fold,  wrap} from "./utility";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
 
     // Clock Modes
 	type clockStates = "forward" | "rebound" | "wander"
 	let clockMode: clockStates;
-	socket.on('clock::mode', (data) => {clockMode = data});
-
+	socket.on('clock::mode', data => clockMode = data);
+    
     // Socket
-    const sync = () => {socket.emit('sync', pos)}
+    socket.on('bpm', data => bpm = data);
 
-    socket.on('sync', (data) => {pos=data});
-
-    socket.on('bpm', (data) => {bpm=data});
-
-    const updatePlayStatus = (status) => {
-        play = status
-        if (status) {
-            Tone.start();
-            Tone.Transport.start();
-            loop.start();
-        } else {
-            Tone.Transport.stop();
-            loop.stop();
-        }
-    }
-
-    socket.on('play', (data) => {
-        updatePlayStatus(data)
-    })
-
-    socket.on('grid', (e) => {
-        grid = e;
+    socket.on('grid', data => {
+        grid = data;
         gridValid = true;
     })
-
-    const sendGrid = () => {
-        socket.emit('grid', grid
-    )}
     
     const FM1 = 0
     const FM2 = 1
@@ -92,27 +83,27 @@
     const KICK = 5;
 
     const loop = new Tone.Loop(time => {
-        if (grid[SNARE][pos]) {
+        if (grid[SNARE][pos] === true) {
             snare.trigger(time)
         }
 
-        if (grid[M1][pos]) {
+        if (grid[M1][pos] === true) {
             metal1.trigger(time)
         }
         
-        if (grid[M2][pos]) {
+        if (grid[M2][pos] === true) {
             metal2.trigger(time)
         }
 
-        if (grid[KICK][pos]) {
+        if (grid[KICK][pos] === true) {
             kick.trigger(time)
         }
 
-        if (grid[FM1][pos]) {
+        if (grid[FM1][pos] === true) {
             fm1.trigger(time)
         }
 
-        if (grid[FM2][pos]) {
+        if (grid[FM2][pos] === true) {
             fm2.trigger(time)
         }
 
@@ -156,6 +147,21 @@
         }
         
     }, "16n").start(0);
+
+    const updatePlayStatus = status => {
+        play = status
+        if (status) {
+            Tone.start();
+            Tone.Transport.start();
+            loop.start();
+        } else {
+            loop.stop();
+        }
+    }
+
+    socket.on('play', (data) => {
+        updatePlayStatus(data)
+    })
 
 
     const startLoop = () => {
@@ -213,9 +219,19 @@
         grid[x][y] = !grid[x][y]
         sendGrid()
     };
+
+    const handleMouseDown = () => {
+        mouseDown = true
+    }
+    
+    const handleMouseUp = () => {
+        mouseDown = false
+    }
 </script>
 
-<div class="grid-container">
+<svelte:window on:mousedown={handleMouseDown} on:mouseup={handleMouseUp} />
+
+<div class="all-controls">
     <div class="grid">
         {#if gridValid}
             {#each grid as row, x}
@@ -233,70 +249,74 @@
                         selected={column}
                         emph={pos === y}
                         toggleFun = {()=> handleClick(x, y)}
+                        bind:mouse={mouseDown}
                         />
                     {/each}
                     <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1); sendGrid()}}/>
                 </div>
                 <div class="cell-container">
-                {#if x === grid.length-1}
-                    {#each row as column, y}
-                        <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
-                    {/each}
-                {/if}
+                    {#if x === grid.length-1}
+                        {#each row as column, y}
+                            <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
+                        {/each}
+                    {/if}
                 </div>
-    
             {/each}
         {/if}
     </div>
-</div>
 
-<div class="pattern-generation">
-    <span>euclidian pattern generation</span>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[0]} func={() => euclid(0)}/>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[1]} func={() => euclid(1)}/>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[2]} func={() => euclid(2)}/>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[3]} func={() => euclid(3)}/>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[4]} func={() => euclid(4)}/>
-    <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[5]} func={() => euclid(5)}/>
-</div>
-
-<div class="transforms">
-    transforms
-    <BoxButton func={mirrorGrid} text="mirror" />
-    <BoxButton func={invertGrid} text="invert" />
-</div>
-
-<div class="grid-controls">
-    <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={stepMultiplier}/>
-    <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
-    <div class="clock-controls">
-        <BoxButton func={startLoop} text=">"/>
-        <BoxButton func={stopLoop} text="□"/>
+    <div class="transforms">
+        <ControlTitle title="Euclidian Generators" />
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[0]} func={() => euclid(0)}/>
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[1]} func={() => euclid(1)}/>
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[2]} func={() => euclid(2)}/>
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[3]} func={() => euclid(3)}/>
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[4]} func={() => euclid(4)}/>
+        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[5]} func={() => euclid(5)}/>
     </div>
-    <Clock bind:value={clockMode}/>
-    <div class="clock-controls">
+
+    <div class="transforms">
+        <ControlTitle title="Transforms" />
+        <BoxButton func={mirrorGrid} text="mirror" />
+        <BoxButton func={invertGrid} text="invert" />
         <BoxButton func={clearGrid} text="clear" />
         <BoxButton func={randomiseGrid} text="randomise" />
+    </div>
+
+    <div class="transforms">
+        <ControlTitle title="Clock Controls" />
+
+        <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={stepMultiplier}/>
+        <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
+        <div class="clock-controls">
+            <BoxButton func={startLoop} text=">"/>
+            <BoxButton func={stopLoop} text="□"/>
+        </div>
+        <Clock bind:value={clockMode}/>
     </div>
 </div>
 
 <style>
-    .grid-container {
+    .all-controls {
         display: flex;
         flex-direction: row;
-        justify-content: flex-start;
+        flex-wrap: wrap;
         gap: 10px;
-    }
-    .grid-controls {
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        gap: 3px;
     }
     .clock-controls {
         display: flex;
         flex-direction: row;
         gap: 1px;
+    }
+
+    .transforms {
+        display: flex;
+        flex-direction: column;
+        border: 1px rgba(128, 128, 128, 0.466) solid;
+        border-radius: 5px;
+        background-color: rgba(219, 219, 219, 0.151);
+        padding: 10px;
+        gap: 10px;
     }
 
     .grid {
