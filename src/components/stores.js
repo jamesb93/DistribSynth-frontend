@@ -8,6 +8,16 @@ export const numUsers = writable(0);
 let socketAddr = "ws://localhost:4300" // Local
 export const socket = io(socketAddr);
 
+export const numUsers = writable(0);
+let storedRoom = localStorage.getItem("mfrtjbcode");
+if (storedRoom === null) {
+    storedRoom = ""
+} 
+export const room = writable(storedRoom)
+if (storedRoom !== "") {
+    socket.emit('roomJoin', storedRoom)
+    room.set(storedRoom)
+}
 socket.on('connect', () => {
     console.log('connected to ', socketAddr)
 })
