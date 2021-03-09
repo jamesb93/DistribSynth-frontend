@@ -4,7 +4,7 @@
     export let max: string = "100";
     export let title: string = "";
     export let step: string = "any";
-    export let func = () => {return};
+    export let func;
     export let showValue = true;
 </script>
 
