@@ -2,36 +2,32 @@
     export let selected;
     export let emph;
     export let toggleFun;
-    export let ranged = 1;
+    export let mouse
+
+    const handleEnter = () => {
+        if (mouse) {
+            toggleFun()
+        }
+    }
 </script>
 
-<div class="meta">
-    <div class="clickable">
-        <button 
-            class = "base"
-            class:select = {selected}
-            class:emphasis = {emph}
-            on:click = {toggleFun}
-        />
-    </div>
-
-    <!-- If the area is in loop range -->
-    {#if ranged}
-        <div class="ranged"></div>
-    {/if}
+<div class="clickable" on:mouseenter={handleEnter}>
+    <button 
+        class = "base"
+        class:select = {selected}
+        class:emphasis = {emph}
+        on:click = {toggleFun}
+    />
 </div>
 
+<svelte:window  />
+
 <style>
-    /* Div Area Stuff */
-    .meta {
+    .clickable {
+        z-index: 99;
         padding: 2px;
     }
 
-    .clickable {
-        z-index: 99;
-    }
-
-    /* Button Stuff */
     .base {
         width: 30px;
         height: 30px;
@@ -47,7 +43,7 @@
     }
 
     .emphasis {
-        border: 2px solid #ff5d5d;
+        border: 2px solid #ec5dff;
         width: 30px;
         height: 30px;
     }
