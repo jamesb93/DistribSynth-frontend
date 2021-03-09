@@ -18,10 +18,11 @@ if (storedRoom !== "") {
     socket.emit('roomJoin', storedRoom)
     room.set(storedRoom)
 }
+
 socket.on('connect', () => {
     console.log('connected to ', socketAddr)
 })
 
-socket.on('numUsers', (e) => {
-    numUsers.set(e)
+socket.on('numUsers', (num) => {
+    numUsers.set(num)
 });
