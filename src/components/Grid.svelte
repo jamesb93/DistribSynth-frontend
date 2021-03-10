@@ -1,5 +1,13 @@
 <script type="ts">
     import * as Tone from "tone";
+    import Arrow from './Arrow.svelte';
+    import Slider from "./Slider.svelte";
+    import Clock from "./Control/Clock.svelte";
+    import BoxButton from "./BoxButton.svelte";
+    import Cell from "./Cell.svelte";
+    import { fold,  wrap} from "./utility";
+    import { rotate, random, deepCopy } from "./matrix.js";
+    import { socket } from "../components/stores.js";
     import { getPattern } from "./euclid.js";
     import { mirror } from "./matrix.js";
     import ControlTitle from "./Control/ControlTitle.svelte"
@@ -40,10 +48,27 @@
     export let metal2;
     export let fm1;
     export let fm2;
+    let offset = {
+        start : 0,
+        end : 16
+    }
+
+    socket.on('clock::offset', data => {offset = data})
+    const sendOffset = () => {
+        socket.emit('clock::offset', offset)
+    }
+
+    $: if (offset.start > offset.end) {
+        let t = offset.end
+        offset.end = offset.start
+        offset.start = t
+    }
 
     // Metronome
     let clockDirection: number = 1;
-    let stepMultiplier: number = 1.0;
+    let clockMultiplier: number = 1.0;
+    type clockStates = "forward" | "rebound" | "wander"
+	let clockMode: clockStates;
     let bpm: number = 120; // BPM
     let grid = [];
     let gridValid: boolean = false;
@@ -51,21 +76,15 @@
     let pos: number = 0; // Init a grid position
     let internalPos: number = 0;
     $: Tone.Transport.bpm.value = bpm
-    
-    // Components
-    import Arrow from './Arrow.svelte';
-    import Slider from "./Slider.svelte";
-    import Clock from "./Control/Clock.svelte";
-    import BoxButton from "./BoxButton.svelte";
-    import Cell from "./Cell.svelte";
-    import { fold,  wrap} from "./utility";
-    import { rotate, random, deepCopy } from "./matrix.js";
-    import { socket } from "../components/stores.js";
 
+    const sendMultiplier = () => {
+        console.log('sending')
+        socket.emit('clock::multiplier', clockMultiplier)
+    }
     // Clock Modes
-	type clockStates = "forward" | "rebound" | "wander"
-	let clockMode: clockStates;
+
 	socket.on('clock::mode', data => clockMode = data);
+	socket.on('clock::multiplier', data => clockMultiplier = data);
     
     // Socket
     socket.on('bpm', data => bpm = data);
@@ -108,42 +127,45 @@
         }
 
         if (clockMode === "forward") {
-            internalPos += stepMultiplier
+            internalPos += clockMultiplier
+            internalPos = wrap(internalPos, offset.start, offset.end)
             pos = Math.round(internalPos)
-            pos = wrap(pos, 0, grid[0].length)
 
         } else if (clockMode === "rebound") {
             if (clockDirection === 1) { // if progressing forward
-                if (pos === grid[0].length-1) {
-                    internalPos -= stepMultiplier
+                if (pos === offset.end-1) {
+                    internalPos -= clockMultiplier
                     clockDirection = 0 // change to backward
                 } else { // anywhere else
-                    internalPos += stepMultiplier
+                    internalPos += clockMultiplier
                 }
             } else if (clockDirection === 0) { // if progressing backward
-                if (pos === 0) { // if we're at the left boundary
-                    internalPos += stepMultiplier
+                if (pos === offset.start) { // if we're at the left boundary
+                    internalPos += clockMultiplier
                     clockDirection = 1 // change to forward
                 } else {
-                    internalPos -= stepMultiplier
+                    internalPos -= clockMultiplier
                 }   
-            } 
+            }
+            internalPos = wrap(internalPos, offset.start, offset.end)
             pos = Math.round(internalPos)  
+
         } else if (clockMode === "wander") {
-            if (pos === 0) {
-                internalPos += stepMultiplier
-            } else if (pos >= grid[0].length-1) {
-                internalPos -= stepMultiplier
+            if (pos === offset.start) {
+                internalPos += clockMultiplier
+            } else if (pos >= offset.end-1) {
+                internalPos -= clockMultiplier
             } else {
                 let randomWalk = Math.random() <= 0.5;
                 if (randomWalk) {
-                    internalPos += stepMultiplier
+                    internalPos += clockMultiplier
                 } else {
-                    internalPos -= stepMultiplier
+                    internalPos -= clockMultiplier
                 }
             }
+            internalPos = wrap(internalPos, offset.start, offset.end)
             pos = Math.round(internalPos)
-            pos = Math.min(Math.max(pos, 0), grid[0].length-1)
+            pos = Math.min(Math.max(pos, offset.start), offset.end-1)
         }
         
     }, "16n").start(0);
@@ -233,6 +255,8 @@
 
 <div class="all-controls">
     <div class="grid">
+        <Slider title="start" min=0 max=16 step=1 bind:value={offset.start} func={sendOffset} />
+        <Slider title="end" min=0 max=16 step=1 bind:value={offset.end} func={sendOffset} />
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
@@ -286,8 +310,8 @@
     <div class="transforms">
         <ControlTitle title="Clock Controls" />
 
-        <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={stepMultiplier}/>
-        <Slider title="BPM" min=60 max=300 step=1 func={sendBpm} bind:value={bpm} />
+        <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={clockMultiplier} func={sendMultiplier}/>
+        <Slider title="BPM" min=60 max=300 step=1 bind:value={bpm} func={sendBpm} />
         <div class="clock-controls">
             <BoxButton func={startLoop} text=">"/>
             <BoxButton func={stopLoop} text="□"/>
