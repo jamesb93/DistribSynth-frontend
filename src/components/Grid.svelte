@@ -12,6 +12,33 @@
     import { mirror } from "./matrix.js";
     import ControlTitle from "./Control/ControlTitle.svelte"
 
+    // Instruments
+    export let kick;
+    export let snare;
+    export let metal1;
+    export let metal2;
+    export let fm1;
+    export let fm2;
+    let globalVelocity: number = 1.0
+    let globalLength: number = 0.1
+
+    const sendVelocity = () => {
+        socket.emit('velocity', globalVelocity)
+    }
+
+    socket.on('velocity', data => globalVelocity = data)
+
+    const sendLength = () => {
+        socket.emit('length', globalLength)
+    }
+
+    socket.on('length', data => globalLength = data)
+
+    let offset = {
+        start : 0,
+        end : 16
+    }
+
     // Euclidian Pattern Generation
     let euclidSteps = new Array(6).fill(0)
     const sendGrid = () => {
@@ -38,20 +65,7 @@
         sendGrid()
     }
 
-    // Grid
     let mouseDown: boolean = false;
-
-    // Instruments
-    export let kick;
-    export let snare;
-    export let metal1;
-    export let metal2;
-    export let fm1;
-    export let fm2;
-    let offset = {
-        start : 0,
-        end : 16
-    }
 
     socket.on('clock::offset', data => {offset = data})
     const sendOffset = () => {
@@ -103,27 +117,27 @@
 
     const loop = new Tone.Loop(time => {
         if (grid[SNARE][pos] === true) {
-            snare.trigger(time)
+            snare.trigger(time, globalVelocity, globalLength)
         }
 
         if (grid[M1][pos] === true) {
-            metal1.trigger(time)
+            metal1.trigger(time, globalVelocity, globalLength)
         }
         
         if (grid[M2][pos] === true) {
-            metal2.trigger(time)
+            metal2.trigger(time, globalVelocity, globalLength)
         }
 
         if (grid[KICK][pos] === true) {
-            kick.trigger(time)
+            kick.trigger(time, globalVelocity, globalLength)
         }
 
         if (grid[FM1][pos] === true) {
-            fm1.trigger(time)
+            fm1.trigger(time, globalVelocity, globalLength)
         }
 
         if (grid[FM2][pos] === true) {
-            fm2.trigger(time)
+            fm2.trigger(time, globalVelocity, globalLength)
         }
 
         if (clockMode === "forward") {
@@ -257,6 +271,8 @@
     <div class="grid">
         <Slider title="start" min=0 max=16 step=1 bind:value={offset.start} func={sendOffset} />
         <Slider title="end" min=0 max=16 step=1 bind:value={offset.end} func={sendOffset} />
+        <Slider title="Global Velocity" min=0.0 max=1.0 step=0.01 bind:value={globalVelocity} func={sendVelocity} />
+        <Slider title="Global Length Scale" min=0.05 max=5.0 step=0.01 bind:value={globalLength} func={sendLength} />
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
