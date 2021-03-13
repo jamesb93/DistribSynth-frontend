@@ -9,14 +9,22 @@
 	import FM from "./components/Control/FM.svelte";
 	import Editor from "./components/Editor.svelte";
 	import RoomPrompt from "./components/RoomPrompt.svelte";
+	import Slider from "./components/Slider.svelte";
 
 	import { ThreeOp } from './instruments/fm.js'
 	import { snare } from './instruments/snare.js'
 	import { kick } from './instruments/kick.js'
 	import { MetalSynthesis } from './instruments/metal.js'
 
+	let masterGainAmount = 1.0;
+	let params = null;
+	socket.on('params', data => params = data) // get all params in one message
+	let humanParams = ""
+	$: humanParams = JSON.stringify(params, null, 4)
+
 	const masterLimiter = new Tone.Limiter(-5).toDestination();
-	const masterGain = new Tone.Gain().connect(masterLimiter);
+	const masterGain = new Tone.Gain(masterGainAmount).connect(masterLimiter);
+	$: masterGain.gain.rampTo(masterGainAmount, 0.1)
 
 	const metal1 = new MetalSynthesis()
 	const metal2 = new MetalSynthesis()
@@ -30,15 +38,18 @@
 	fm1.out.connect(masterGain)
 	fm2.out.connect(masterGain)
 
-	let params = null;
-	socket.on('params', (data) => {params = data; console.log(params)}) // get all params in one message
-	let humanParams = ""
-	$: humanParams = JSON.stringify(params, null, 4)
+
 </script>
+
 <main>
-	<RoomPrompt />
+	<div class="shared">
+		<RoomPrompt />
+		{#if $room !== ""}
+			<Editor bind:text={humanParams}/>
+			<Slider title="Master Volume" min=0 max=1 step=0.001 bind:value={masterGainAmount} />
+		{/if}
+	</div>
 	{#if $room !== ""}
-		<Editor bind:text={humanParams}/>
 		<div class="main-layout" transition:fade="{{duration: 1000}}">
 			{#if $room === ""}
 				<span class="connected">Please connect to a room</span>
@@ -93,15 +104,11 @@
 
 	
 <style>
-	.editor {
-		min-width: 30%;
-		min-height: 200px;
-		outline: none;
-	}
-	.test-rack {
+	.shared {
 		display: flex;
-		flex-direction: column;
-		width: 50%;
+		flex-direction: row;
+		justify-content: space-around;
+		gap: 100px
 	}
 	.main-layout {
 		display: flex;
