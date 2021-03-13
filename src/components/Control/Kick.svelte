@@ -8,8 +8,8 @@
     export let instrument;
     export let parameters;
 
-    $: instrument.waveshaper.octaves = parameters.kick.octaves;
-    $: instrument.membrane.frequency.value = parameters.kick.frequency;
+    $: instrument.membrane.octaves = parameters.kick.octaves
+    $: instrument.membrane.frequency.rampTo(parameters.kick.frequency, 0.1)
     $: instrument.membrane.envelope.attack = parameters.kick.attack;
     $: instrument.membrane.envelope.sustain = parameters.kick.sustain;
     $: instrument.membrane.envelope.decay = parameters.kick.decay;
