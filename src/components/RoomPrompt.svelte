@@ -1,7 +1,9 @@
 <script type="ts">
     import { socket, room } from "./stores.js"
+	let everUsed = false;
     let code = ""
     const handleClick = () => {
+        everUsed = true;
         socket.emit('roomJoin', code)
         localStorage.setItem("mfrtjbcode", code);
         room.set(code)
@@ -17,13 +19,19 @@
 </script>
 
 <div class="prompt" >
-    <input type="text" bind:value={code} on:change={handleClick} placeholder="enter room code" class="code-entry"/>
+    <input type="text" class:pulsate={!everUsed} bind:value={code} on:change={handleClick} placeholder="enter room code" class="code-entry"/>
     <button on:click={handleClear}>clear</button>
 </div>
 
-
-
 <style>
+    @keyframes border-pulsate {
+        0%   { border: 2px solid #DDDDDD; }
+        25%  { border: 2px solid #4c87af7c; }
+        50% { border: 2px solid #4c87af; }
+        75%  { border: 2px solid #4c87af7c; }
+        100%   { border: 2px solid #DDDDDD; }
+
+    }
     input[type=text], textarea {
         -webkit-transition: all 0.30s ease-in-out;
         -moz-transition: all 0.30s ease-in-out;
@@ -46,5 +54,9 @@
         margin: 0 auto;
         width: 100px;
         height: 30px;
+    }
+
+    .pulsate {
+        animation: border-pulsate 4s infinite;
     }
 </style>
