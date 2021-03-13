@@ -15,6 +15,10 @@
     $: instrument.source.resonance = parameters[id].resonance;
     $: instrument.source.octaves = parameters[id].octaves;
     $: instrument.waveshaper.order = parameters[id].order;
+    $: instrument.source.envelope.attack = parameters[id].attack;
+    $: instrument.source.envelope.decay = parameters[id].decay;
+    $: instrument.source.envelope.release = parameters[id].release;
+
 
     const uFrequency = () => {
         socket.emit('params::'+id, 'frequency', parameters[id].frequency)
@@ -40,12 +44,26 @@
         socket.emit('params::'+id, 'order', parameters[id].order)
     }
 
+    const uAttack = () => {
+        socket.emit('params::'+id, 'attack', parameters[id].attack)
+    }
+    const uDecay = () => {
+        socket.emit('params::'+id, 'decay', parameters[id].decay)
+    }
+    const uRelease = () => {
+        socket.emit('params::'+id, 'release', parameters[id].release)
+    }
+
     socket.on('params::'+id+'::frequency', (data) => {parameters[id].frequency = data})
     socket.on('params::'+id+'::harmonicity', (data) => {parameters[id].harmonicity = data})
     socket.on('params::'+id+'::modulationIndex', (data) => {parameters[id].modulationIndex = data})
     socket.on('params::'+id+'::resonance', (data) => {parameters[id].resonance = data})
     socket.on('params::'+id+'::octaves', (data) => {parameters[id].octaves = data})
     socket.on('params::'+id+'::order', (data) => {parameters[id].order = data})
+    socket.on('params::'+id+'::attack', (data) => {parameters[id].attack = data})
+    socket.on('params::'+id+'::decay', (data) => {parameters[id].decay = data})
+    socket.on('params::'+id+'::release', (data) => {parameters[id].release = data})
+
 
 </script>
 
@@ -57,5 +75,9 @@
     <Slider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
     <Slider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
     <Slider min="1" max="50" step="1" title="waveshape" bind:value={parameters[id].order} func={uOrder} />
+    <Slider min="0.001" max="1" step="0.001" title="attack" bind:value={parameters[id].attack} func={uAttack} />
+    <Slider min="0.001" max="2" step="0.001" title="decay" bind:value={parameters[id].decay} func={uDecay} />
+    <Slider min="0.001" max="1" step="0.001" title="release" bind:value={parameters[id].release} func={uRelease} />
+
     <Presets bind:data={parameters} key={id} />
 </ControlContainer>
