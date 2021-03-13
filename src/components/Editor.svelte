@@ -22,9 +22,20 @@
 	}
 </script>
 
-<textarea 
-    bind:value={text} 
-    on:input={handMade} 
-    class="editor"
-/>
-<button on:click={() => {saveTextAsFile(text, 'data.json')}}>Download</button>
+<div class="container">
+	<textarea 
+    	bind:value={text} 
+    	on:input={handMade} 
+    	class="editor"
+	/>
+	<button on:click={() => {saveTextAsFile(text, 'data.json')}}>Download</button>
+</div>
+
+<style>
+	.container {
+		display:flex;
+		flex-direction: row;
+		width: 30px;
+		height: 30px;
+	}
+</style>
