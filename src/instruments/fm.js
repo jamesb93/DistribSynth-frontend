@@ -18,7 +18,7 @@ class ThreeOp {
             attack : 0.1
         } 
         
-        this.out = new Tone.Gain(0.33).toDestination()
+        this.out = new Tone.Gain(0.33)
         
         // OP 3
         this.fm3to2 = new Tone.Multiply()
@@ -60,13 +60,13 @@ class ThreeOp {
         this.fm3to1.fan(this.c1fb1.addend)
         this.fm3to2.fan(this.c2fb1.addend)
     }
-    trigger = (time) => {
-        this.c1env.triggerAttack(time)
-        this.c1env.triggerRelease(time+0.01)
-        this.c2env.triggerAttack(time)
-        this.c2env.triggerRelease(time+0.01)
-        this.c3env.triggerAttack(time)
-        this.c3env.triggerRelease(time+0.01)
+    trigger = (time, velocity, duration) => {
+        this.c1env.triggerAttack(time, velocity)
+        this.c1env.triggerRelease(time+duration)
+        this.c2env.triggerAttack(time, velocity)
+        this.c2env.triggerRelease(time+duration)
+        this.c3env.triggerAttack(time, velocity)
+        this.c3env.triggerRelease(time+duration)
     }
 }
 

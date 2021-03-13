@@ -29,8 +29,9 @@ export const snare = {
     env,
     waveshaper,
     out,
-    trigger: (time) => {
-        env.triggerAttackRelease("8n", time)
-        membrane.triggerAttackRelease(snare.membrane.frequency.value, "8n", time)
+    trigger: (time, velocity, duration) => {
+        env.triggerAttack(time, velocity)
+        env.triggerRelease("+"+duration)
+        membrane.triggerAttackRelease(snare.membrane.frequency.value, duration, time, velocity)
     }
 }

@@ -8,8 +8,8 @@ class MetalSynthesis {
         this.source = new Tone.MetalSynth().connect(this.waveshaper);
     }
 
-    trigger = (time) => {
-        this.source.triggerAttackRelease(this.source.frequency.value, "8n", time)
+    trigger = (time, velocity, duration) => {
+        this.source.triggerAttackRelease(this.source.frequency.value, duration, time, velocity)
     }
 }
 
