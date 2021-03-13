@@ -9,15 +9,15 @@
 </script>
 
 <div class="pad">
-<span class="text title">{title}</span>
-<div class="container">
-    <span class="text min">{min}</span>
-    <input class="slider" type="range" min={min} max={max} step={step} bind:value={value} on:input={func} />
-    <span class="text max">{max}</span>
-</div>
-{#if showValue}
-    <span class="text value">{value}</span>
-{/if}
+    <span class="text title">{title}</span>
+    <div class="container">
+        <span class="text min">{min}</span>
+        <input class="slider" type="range" min={min} max={max} step={step} bind:value={value} on:input={func} />
+        <span class="text max">{max}</span>
+    </div>
+    {#if showValue}
+        <span class="text value">{value}</span>
+    {/if}
 </div>
 
 
