@@ -52,6 +52,11 @@ let length = 0;
 let animatedValue = 0;
 let interval = null;
 
+const round = (value, precision) => {
+    var multiplier = Math.pow(10, precision || 0);
+    return Math.round(value * multiplier) / multiplier;
+}
+
 export let func;
 
 export let animation = {
