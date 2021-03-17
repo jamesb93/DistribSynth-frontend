@@ -10,17 +10,10 @@
         code = ""
     }
 
-    const handleClear = () => {
-        localStorage.setItem("mfrtjbcode", "")
-        room.set("")
-        code = ""
-    }
-
 </script>
 
 <div class="prompt" >
     <input type="text" class:pulsate={!everUsed} bind:value={code} on:change={handleClick} placeholder="enter room code" class="code-entry"/>
-    <button on:click={handleClear}>clear</button>
 </div>
 
 <style>
