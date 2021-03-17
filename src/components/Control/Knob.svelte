@@ -98,6 +98,8 @@ onMount(async () => {
     }
 });
 
+
+
 $: dashStyle = {
     strokeDasharray: length,
     strokeDashoffset: length
@@ -110,7 +112,6 @@ $: computedSize = responsive ? size + '%' : size
 $: rangePath = `M ${minX} ${minY} A ${RADIUS} ${RADIUS} 0 1 1 ${maxX} ${maxY}`;
 
 $: valuePath = `M ${zeroX} ${zeroY} A ${RADIUS} ${RADIUS} 0 ${largeArc} ${sweep} ${valueX} ${valueY}`;
-
 
 $: zeroRadians = (min > 0 && max > 0) ?mapRange(min, min, max, MIN_RADIANS, MAX_RADIANS):mapRange(0, min, max, MIN_RADIANS, MAX_RADIANS);
 
@@ -136,9 +137,10 @@ $: largeArc = Math.abs(zeroRadians - valueRadians) < Math.PI ? 0 : 1;
 
 $: sweep = valueRadians > zeroRadians ? 0 : 1;
 
-$: valueDisplay = animation.animateValue ? valueDisplayFunction(animatedValue):valueDisplayFunction(value);
+$: valueDisplay = animation.animateValue ? valueDisplayFunction(animatedValue) : valueDisplayFunction(value);
 
 let pv = null;
+
 function updatePosition(offsetX, offsetY) {
     const dx = offsetX - size / 2;
     const dy = size / 2 - offsetY;
@@ -157,7 +159,6 @@ function updatePosition(offsetX, offsetY) {
         return;
     }
     
-
     value = Math.round((mappedValue - min) / step) * step + min;
     if (pv != value) {
         func();
@@ -168,9 +169,7 @@ function updatePosition(offsetX, offsetY) {
 };
 
 function onClick(e) {
- 
     if (!disabled) {
-   
         updatePosition(e.offsetX, e.offsetY);
     }
 };
