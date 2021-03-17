@@ -23,11 +23,11 @@
 </script>
 
 <div class="container">
-	<textarea 
+	<!-- <textarea 
     	bind:value={text} 
     	on:input={handMade} 
     	class="editor"
-	/>
+	/> -->
 	<button on:click={() => {saveTextAsFile(text, 'data.json')}}>Download</button>
 </div>
 
