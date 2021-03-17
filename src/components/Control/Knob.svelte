@@ -79,7 +79,7 @@ export let primaryColor = '#409eff';
 export let secondaryColor = '#dcdfe6';
 export let textColor = '#000000';
 export let strokeWidth = 17;
-export let valueDisplayFunction = (v) => v;
+export let valueDisplayFunction = (v) => { return round(v, 1) } ;
 
 onMount(async () => {
     dashLength()
