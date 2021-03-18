@@ -46,7 +46,7 @@
 		<RoomPrompt />
 		{#if $room !== ""}
 			<Editor bind:text={humanParams}/>
-			<Knob size={50} min={0} max={1} step={0.001} bind:value={masterGainAmount} />
+			<Knob title="volume" size={50} min={0} max={1} step={0.001} bind:value={masterGainAmount} />
 		{/if}
 	</div>
 	{#if $room !== ""}
