@@ -13,6 +13,7 @@
     import ControlTitle from "./Control/ControlTitle.svelte";
     import Knob from "./Knob.svelte";
     import FlatSlider from "./FlatSlider.svelte";   
+    import Play from "./Play.svelte";
 
     // Instruments
     export let kick;
@@ -269,16 +270,27 @@
 <svelte:window on:mousedown={handleMouseDown} on:mouseup={handleMouseUp} />
 
 <div class="all-controls">
-    <div class="main-controls">
-    </div>
     <div class="bpm-control">
         <FlatSlider min=60 max=300 step=1 bind:value={bpm} func={sendBpm} />
     </div>
+    <div class="main-controls">
+    </div>
+    <div class="global-controls">
+        <Play bind:playing={play} start={startLoop} pause={stopLoop}/>
+        <Knob title="start" min={0} max={16} bind:value={offset.start} func={sendOffset} />
+        <Knob title="end" min={0} max={16} bind:value={offset.end} func={sendOffset} />
+        <Knob title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
+        <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} />
+        <Knob title="multiplier" min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
+    </div>
+    <div class="transforms">
+        <BoxButton func={mirrorGrid} text="mirror" />
+        <BoxButton func={invertGrid} text="invert" />
+        <BoxButton func={clearGrid} text="clear" />
+        <BoxButton func={randomiseGrid} text="randomise" />
+        <Clock bind:value={clockMode}/>
+    </div>
     <div class="grid">
-        <Knob min={0} max={16} bind:value={offset.start} func={sendOffset} />
-        <Knob min={0} max={16} bind:value={offset.end} func={sendOffset} />
-        <Knob min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
-        <Knob min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} />
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
@@ -289,7 +301,9 @@
                     {/if}
                 </div>
                 <div class="cell-container">
-                    <div class="euclid-buffer"><Knob size={50} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/></div>
+                    <div class="euclid-buffer">
+                        <Knob size={50} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/>
+                    </div>
                     
                     <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1); sendGrid()}}/>
                     {#each row as column, y}
@@ -312,30 +326,16 @@
             {/each}
         {/if}
     </div>
-
-    <div class="transforms">
-        <ControlTitle title="Transforms" />
-        <BoxButton func={mirrorGrid} text="mirror" />
-        <BoxButton func={invertGrid} text="invert" />
-        <BoxButton func={clearGrid} text="clear" />
-        <BoxButton func={randomiseGrid} text="randomise" />
-    </div>
-
-    <div class="transforms">
-        <ControlTitle title="Clock Controls" />
-        <Knob min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
-        <div class="clock-controls">
-            <BoxButton func={startLoop} text=">"/>
-            <BoxButton func={stopLoop} text="□"/>
-        </div>
-        <Clock bind:value={clockMode}/>
-    </div>
 </div>
 
 <style>
-
+    .global-controls {
+        display: flex;
+        flex-direction: row;
+        gap: 10px;
+    }
     .euclid-buffer {
-        padding-right: 20px;
+        padding-right: 15px;
     }
     .all-controls {
         display: flex;
@@ -343,15 +343,10 @@
         flex-wrap: wrap;
         gap: 10px;
     }
-    .clock-controls {
-        display: flex;
-        flex-direction: row;
-        gap: 1px;
-    }
 
     .transforms {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
         border: 1px rgba(128, 128, 128, 0.466) solid;
         border-radius: 5px;
         background-color: rgba(219, 219, 219, 0.151);
