@@ -11,9 +11,9 @@
     }
 </script>
 
-<div class="clickable" on:mouseenter={handleEnter}>
+<div class="container" on:mouseenter={handleEnter}>
     <button 
-        class = "base"
+        class="base"
         class:select = {selected}
         class:emphasis = {emph}
         on:click = {toggleFun}
@@ -23,28 +23,25 @@
 <svelte:window  />
 
 <style>
-    .clickable {
-        z-index: 99;
-        padding: 2px;
-    }
 
     .base {
-        width: 30px;
-        height: 30px;
-        padding: 0px;
-        border: 2px solid black;
+        width: 50px;
+        height: 50px;
         display: inline-block;
-        border-radius: 0px;
-        background-color: whitesmoke;
+        border-radius: 0;
+        background: none;
+        box-shadow: none;
+        border-style: none;
+    }
+    .container {
+        padding: 4px;
     }
 
     .select {
-        background-color: #4c87af;
+        background-color: #bf5d5d;
     }
 
     .emphasis {
-        border: 2px solid #ec5dff;
-        width: 30px;
-        height: 30px;
+        border: 2px solid #ffffff;
     }
 </style>
