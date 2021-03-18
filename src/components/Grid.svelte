@@ -144,7 +144,7 @@
         if (clockMode === "forward") {
             internalPos += clockMultiplier
             internalPos = wrap(internalPos, offset.start, offset.end)
-            pos = Math.round(internalPos)
+            pos = Math.floor(internalPos)
 
         } else if (clockMode === "rebound") {
             if (clockDirection === 1) { // if progressing forward
@@ -163,7 +163,7 @@
                 }   
             }
             internalPos = wrap(internalPos, offset.start, offset.end)
-            pos = Math.round(internalPos)  
+            pos = Math.floor(internalPos)  
 
         } else if (clockMode === "wander") {
             if (pos === offset.start) {
