@@ -1,10 +1,19 @@
 <div class="knob-control" style="{style}" bind:this={knob}>
-    <svg width="{computedSize}" height="{computedSize}" viewBox="0 0 100 100"
+    <svg width="{computedSize}" height="{computedSize}" viewBox="0 0 120 120"
         on:click="{onClick}"
         on:mousedown="{onMouseDown}"
         on:mouseup="{onMouseUp}"
         on:touchstart="{onTouchStart}"
         on:touchend="{onTouchEnd}">
+        <text
+            x="60"
+            y="20"
+            text-anchor="middle"
+            fill="{textColor}"
+            class="knob-control__text-display"
+        >
+        {title}
+        </text>
         <path
             d="{rangePath}"
             stroke-width="{strokeWidth}"
@@ -23,8 +32,8 @@
             class="knob-control__value">
         </path>
         <text
-            x="50"
-            y="57"
+            x="60"
+            y="77"
             text-anchor="middle"
             fill="{textColor}"
             class="knob-control__text-display">
@@ -40,8 +49,8 @@ import {
 } from 'svelte'
 
 const RADIUS = 40;
-const MID_X = 50;
-const MID_Y = 50;
+const MID_X = 60;
+const MID_Y = 80;
 const MIN_RADIANS = 4 * Math.PI / 3;
 const MAX_RADIANS = -Math.PI / 3;
 
@@ -58,6 +67,7 @@ const round = (value, precision) => {
 }
 
 export let func;
+export let title = "";
 
 export let animation = {
     animated: false,
@@ -259,7 +269,7 @@ function mapRange(x, inMin, inMax, outMin, outMax)  {
 }
 
 .knob-control__text-display {
-    font-size: 1.3rem;
+    font-size: 1rem;
     text-align: center;
 }
 </style>
