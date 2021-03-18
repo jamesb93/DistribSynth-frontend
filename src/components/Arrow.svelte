@@ -27,21 +27,19 @@
 
 <style>
     .container {
-        height: 30px;
-        width: 30px;
-        padding-left: 2px;
-        padding-right: 2px;
+        height: 50px;
+        width: 58px;
         opacity: 1
-    }
+    }   
     .hidden {
         opacity: 0.15;
         transition: opacity 0.35s;
     }
     .arrow {
-        border: 1px solid grey;
+        border: 1px solid rgb(46, 46, 46);
         border-width: 0 3px 3px 0;
         display: inline-block;
-        padding: 4px;
+        padding: 5px;
         text-align: center;
     }
     
