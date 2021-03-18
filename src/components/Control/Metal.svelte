@@ -14,7 +14,6 @@
     $: instrument.source.modulationIndex = parameters[id].modulationIndex;
     $: instrument.source.resonance = parameters[id].resonance;
     $: instrument.source.octaves = parameters[id].octaves;
-    $: instrument.waveshaper.order = parameters[id].order;
     $: instrument.source.envelope.attack = parameters[id].attack;
     $: instrument.source.envelope.decay = parameters[id].decay;
     $: instrument.source.envelope.release = parameters[id].release;
