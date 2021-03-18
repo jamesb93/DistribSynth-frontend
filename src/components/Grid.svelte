@@ -5,12 +5,14 @@
     import Clock from "./Control/Clock.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
-    import { fold,  wrap} from "./utility";
+    import { wrap} from "./utility";
     import { rotate, random, deepCopy } from "./matrix.js";
     import { socket } from "../components/stores.js";
     import { getPattern } from "./euclid.js";
     import { mirror } from "./matrix.js";
-    import ControlTitle from "./Control/ControlTitle.svelte"
+    import ControlTitle from "./Control/ControlTitle.svelte";
+    import Knob from "./Knob.svelte";
+    import FlatSlider from "./FlatSlider.svelte";   
 
     // Instruments
     export let kick;
@@ -21,6 +23,24 @@
     export let fm2;
     let globalVelocity: number = 1.0
     let globalLength: number = 0.1
+
+    // Metronome
+    let clockDirection: number = 1;
+    let clockMultiplier: number = 1.0;
+    type clockStates = "forward" | "rebound" | "wander"
+	let clockMode: clockStates;
+    let bpm: number = 120; // BPM
+    let grid = [];
+    let gridValid: boolean = false;
+    let play: boolean = false;
+    let pos: number = 0; // Init a grid position
+    let internalPos: number = 0;
+    let mouseDown: boolean = false;
+    $: Tone.Transport.bpm.value = bpm
+
+    const sendGrid = () => {
+        socket.emit('grid', grid)
+    }
 
     const sendVelocity = () => {
         socket.emit('velocity', globalVelocity)
@@ -39,15 +59,11 @@
         end : 16
     }
 
-    // Euclidian Pattern Generation
-    let euclidSteps = new Array(6).fill(0)
-    const sendGrid = () => {
-        socket.emit('grid', grid)
-    }
-    const euclid = (idx) => {
-        grid[idx] = getPattern(euclidSteps[idx], 16)
-        sendGrid()
-        socket.emit('euclid', euclidSteps)
+    let euclidSteps = [0, 0, 0, 0, 0, 0];
+    const sendEuclid = (idx) => {
+        grid[idx] = getPattern(euclidSteps[idx], 16);
+        socket.emit('euclid', euclidSteps);
+        sendGrid();
     }
 
     socket.on('euclid', data => {
@@ -65,8 +81,6 @@
         sendGrid()
     }
 
-    let mouseDown: boolean = false;
-
     socket.on('clock::offset', data => {offset = data})
     const sendOffset = () => {
         socket.emit('clock::offset', offset)
@@ -77,19 +91,6 @@
         offset.end = offset.start
         offset.start = t
     }
-
-    // Metronome
-    let clockDirection: number = 1;
-    let clockMultiplier: number = 1.0;
-    type clockStates = "forward" | "rebound" | "wander"
-	let clockMode: clockStates;
-    let bpm: number = 120; // BPM
-    let grid = [];
-    let gridValid: boolean = false;
-    let play: boolean = false;
-    let pos: number = 0; // Init a grid position
-    let internalPos: number = 0;
-    $: Tone.Transport.bpm.value = bpm
 
     const sendMultiplier = () => {
         console.log('sending')
@@ -268,11 +269,16 @@
 <svelte:window on:mousedown={handleMouseDown} on:mouseup={handleMouseUp} />
 
 <div class="all-controls">
+    <div class="main-controls">
+    </div>
+    <div class="bpm-control">
+        <FlatSlider min=60 max=300 step=1 bind:value={bpm} func={sendBpm} />
+    </div>
     <div class="grid">
-        <Slider title="start" min=0 max=16 step=1 bind:value={offset.start} func={sendOffset} />
-        <Slider title="end" min=0 max=16 step=1 bind:value={offset.end} func={sendOffset} />
-        <Slider title="Global Velocity" min=0.0 max=1.0 step=0.01 bind:value={globalVelocity} func={sendVelocity} />
-        <Slider title="Global Length Scale" min=0.05 max=5.0 step=0.01 bind:value={globalLength} func={sendLength} />
+        <Knob min={0} max={16} bind:value={offset.start} func={sendOffset} />
+        <Knob min={0} max={16} bind:value={offset.end} func={sendOffset} />
+        <Knob min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
+        <Knob min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} />
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
@@ -283,6 +289,8 @@
                     {/if}
                 </div>
                 <div class="cell-container">
+                    <div class="euclid-buffer"><Knob size={50} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/></div>
+                    
                     <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1); sendGrid()}}/>
                     {#each row as column, y}
                         <Cell
@@ -306,16 +314,6 @@
     </div>
 
     <div class="transforms">
-        <ControlTitle title="Euclidian Generators" />
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[0]} func={() => euclid(0)}/>
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[1]} func={() => euclid(1)}/>
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[2]} func={() => euclid(2)}/>
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[3]} func={() => euclid(3)}/>
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[4]} func={() => euclid(4)}/>
-        <Slider showValue={false} min=0 max=16 step=1 bind:value={euclidSteps[5]} func={() => euclid(5)}/>
-    </div>
-
-    <div class="transforms">
         <ControlTitle title="Transforms" />
         <BoxButton func={mirrorGrid} text="mirror" />
         <BoxButton func={invertGrid} text="invert" />
@@ -325,9 +323,7 @@
 
     <div class="transforms">
         <ControlTitle title="Clock Controls" />
-
-        <Slider title="Clock Multiplier" min=0.125 max=4 step=0.125 bind:value={clockMultiplier} func={sendMultiplier}/>
-        <Slider title="BPM" min=60 max=300 step=1 bind:value={bpm} func={sendBpm} />
+        <Knob min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
         <div class="clock-controls">
             <BoxButton func={startLoop} text=">"/>
             <BoxButton func={stopLoop} text="□"/>
@@ -337,9 +333,13 @@
 </div>
 
 <style>
+
+    .euclid-buffer {
+        padding-right: 20px;
+    }
     .all-controls {
         display: flex;
-        flex-direction: row;
+        flex-direction: column;
         flex-wrap: wrap;
         gap: 10px;
     }
