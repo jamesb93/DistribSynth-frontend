@@ -9,7 +9,7 @@
 	import FM from "./components/Control/FM.svelte";
 	import Editor from "./components/Editor.svelte";
 	import RoomPrompt from "./components/RoomPrompt.svelte";
-	import Slider from "./components/Slider.svelte";
+	import Knob from "./components/Knob.svelte";
 
 	import { ThreeOp } from './instruments/fm.js'
 	import { snare } from './instruments/snare.js'
@@ -46,7 +46,7 @@
 		<RoomPrompt />
 		{#if $room !== ""}
 			<Editor bind:text={humanParams}/>
-			<Slider title="Master Volume" min=0 max=1 step=0.001 bind:value={masterGainAmount} />
+			<Knob size={50} min={0} max={1} step={0.001} bind:value={masterGainAmount} />
 		{/if}
 	</div>
 	{#if $room !== ""}
