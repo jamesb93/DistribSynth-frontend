@@ -61,11 +61,11 @@ class ThreeOp {
     }
     trigger = (time, velocity, duration) => {
         this.c1env.triggerAttack(time, velocity)
-        this.c1env.triggerRelease(time+duration)
+        this.c1env.triggerRelease(time+0.001)
         this.c2env.triggerAttack(time, velocity)
-        this.c2env.triggerRelease(time+duration)
+        this.c2env.triggerRelease(time+0.001)
         this.c3env.triggerAttack(time, velocity)
-        this.c3env.triggerRelease(time+duration)
+        this.c3env.triggerRelease(time+0.001)
     }
 }
 
