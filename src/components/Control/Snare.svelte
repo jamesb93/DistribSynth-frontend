@@ -4,16 +4,17 @@
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
+    import { rng } from "./rng.js";
 
     export let instrument;
     export let parameters;
 
+    // $: instrument.waveshaper.order = parameters.snare.order;
     $: instrument.filter.frequency.value = parameters.snare.frequency
     $: instrument.env.attack = parameters.snare.attack
     $: instrument.env.decay = parameters.snare.decay
     $: instrument.env.release = parameters.snare.release
     $: instrument.env.sustain = parameters.snare.sustain
-    $: instrument.waveshaper.order = parameters.snare.order
 
     const uFrequency = () => {
         socket.emit('params::snare', 'frequency', parameters.snare.frequency);
@@ -39,12 +40,21 @@
         socket.emit('params::snare', 'order', parameters.snare.order)
     }
 
-    socket.on('params::snare::frequency', (data) => {parameters.snare.frequency = data});
-    socket.on('params::snare::attack', (data) => {parameters.snare.attack = data});
-    socket.on('params::snare::decay', (data) => {parameters.snare.decay = data});
-    socket.on('params::snare::sustain', (data) => {parameters.snare.sustain = data});
-    socket.on('params::snare::release', (data) => {parameters.snare.release = data});
-    socket.on('params::snare::order', (data) => {parameters.snare.order = data});
+    socket.on('params::snare::frequency', data => {parameters.snare.frequency = data});
+    socket.on('params::snare::attack', data => {parameters.snare.attack = data});
+    socket.on('params::snare::decay', data => {parameters.snare.decay = data});
+    socket.on('params::snare::sustain', data => {parameters.snare.sustain = data});
+    socket.on('params::snare::release', data => {parameters.snare.release = data});
+    socket.on('params::snare::order', data => {parameters.snare.order = data});
+
+    const randomise = () => {
+        parameters.snare.frequency = rng(300, 5000); uFrequency();
+        parameters.snare.attack = rng(0.001, 0.09); uAttack();
+        parameters.snare.decay = rng(0.001, 1); uDecay();
+        parameters.snare.sustain = rng(0.001, 1); uSustain();
+        parameters.snare.release = rng(0.001, 1); uRelease();
+        parameters.snare.order = rng(1, 50); uOrder();
+    }
 </script>
 
 <ControlContainer>
@@ -54,6 +64,7 @@
     <Slider min="0.001" max="1.0" step="0.001" title="decay" bind:value={parameters.snare.decay} func={uDecay} />
     <Slider min="0.001" max="1.0" step="0.001" title="sustain" bind:value={parameters.snare.sustain} func={uSustain} />
     <Slider min="0.001" max="1.0" step="0.001" title="release" bind:value={parameters.snare.release} func={uRelease} />
-    <Slider min="1" max="50" step="1" title="waveshaping" bind:value={parameters.snare.order} func={uOrder} />
+    <!-- <Slider min="1" max="50" step="1" title="waveshaping" bind:value={parameters.snare.order} func={uOrder} /> -->
     <Presets bind:data={parameters} key={'snare'} />
+    <button on:click={randomise}>randomise</button>
 </ControlContainer>

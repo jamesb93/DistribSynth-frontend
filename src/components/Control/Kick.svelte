@@ -4,6 +4,7 @@
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
+    import { rng } from "./rng.js";
 
     export let instrument;
     export let parameters;
@@ -15,10 +16,6 @@
     $: instrument.membrane.envelope.decay = parameters.kick.decay;
     $: instrument.membrane.envelope.release = parameters.kick.release;
     $: instrument.distortion.distortion = parameters.kick.distortion;
-
-    const template = (instrument, parameter) => {
-        socket.emit('params::'+instrument, parameter, parameters[instrument][parameter])
-    }
 
     const uFrequency = () => {
         socket.emit('params::kick', 'frequency', parameters.kick.frequency)
@@ -54,6 +51,16 @@
     socket.on('params::kick::decay', (data) => {parameters.kick.decay = data});
     socket.on('params::kick::release', (data) => {parameters.kick.release = data});
     socket.on('params::kick::sustain', (data) => {parameters.kick.sustain = data});
+
+    const randomise = () => {
+        parameters.kick.frequency = rng(35, 90); uFrequency();
+        parameters.kick.octaves = rng(0.5, 8); uOctaves();
+        parameters.kick.attack = rng(0.001, 0.09); uAttack();
+        parameters.kick.decay = rng(0.001, 1); uDecay();
+        parameters.kick.sustain = rng(0.001, 1); uSustain();
+        parameters.kick.release = rng(0.001, 1.4); uRelease();
+        parameters.kick.distortion = rng(0.0, 1.0); uDistortion();
+    }
 </script>
 
 <ControlContainer>
@@ -66,4 +73,5 @@
     <Slider title="Release" min="0.0" max="1.4" step="0.05" bind:value={parameters.kick.release} func={uRelease} />
     <Slider title="Distortion" min="0.0" max="1.0" step="0.01" bind:value={parameters.kick.distortion} func={uDistortion} />
     <Presets bind:data={parameters} key={'kick'} />
+    <button on:click={randomise}>randomise</button>
 </ControlContainer>
