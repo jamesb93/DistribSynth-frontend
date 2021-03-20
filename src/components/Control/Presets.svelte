@@ -5,6 +5,7 @@
 
     let selected: number = 0;
     let modifierDown: boolean = false;
+    let hovered: boolean = false;
     let store = {}
 
     const handleClick = (idx) => {
@@ -31,13 +32,21 @@
             modifierDown = false;
         }
     };
+
+    const handleMouseEnter = () => {
+        hovered = true;
+    }
+
+    const handleMouseLeave = () => {
+        hovered = false;
+    }
 </script>
 
 <svelte:window on:keydown={handleKeyDown} on:keyup={handleKeyUp}></svelte:window>
 
-<div class="container">
+<div class="container" on:mouseenter={handleMouseEnter} on:mouseleave={handleMouseLeave}>
     <span class="title">
-        presets | {#if modifierDown}storing {:else} recalling {/if}</span>
+        presets | {#if modifierDown && hovered}storing {:else} recalling {/if}</span>
     <div class="button-container">
         {#each { length: 5 } as _, idx}
             <button 
