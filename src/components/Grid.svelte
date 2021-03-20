@@ -119,27 +119,27 @@
 
     const loop = new Tone.Loop(time => {
         if (grid[SNARE][pos] === true) {
-            snare.trigger(time, globalVelocity, globalLength)
+            snare.trigger(time, globalVelocity)
         }
 
         if (grid[M1][pos] === true) {
-            metal1.trigger(time, globalVelocity, globalLength)
+            metal1.trigger(time, globalVelocity)
         }
         
         if (grid[M2][pos] === true) {
-            metal2.trigger(time, globalVelocity, globalLength)
+            metal2.trigger(time, globalVelocity)
         }
 
         if (grid[KICK][pos] === true) {
-            kick.trigger(time, globalVelocity, globalLength)
+            kick.trigger(time, globalVelocity)
         }
 
         if (grid[FM1][pos] === true) {
-            fm1.trigger(time, globalVelocity, globalLength)
+            fm1.trigger(time, globalVelocity, 1)
         }
 
         if (grid[FM2][pos] === true) {
-            fm2.trigger(time, globalVelocity, globalLength)
+            fm2.trigger(time, globalVelocity, 1)
         }
 
         if (clockMode === "forward") {
@@ -280,7 +280,7 @@
         <Knob title="start" min={0} max={16} bind:value={offset.start} func={sendOffset} />
         <Knob title="end" min={0} max={16} bind:value={offset.end} func={sendOffset} />
         <Knob title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
-        <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} />
+        <!-- <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} /> -->
         <Knob title="multiplier" min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
     </div>
     <div class="transforms">
