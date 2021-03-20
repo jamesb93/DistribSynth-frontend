@@ -12,20 +12,18 @@ class ThreeOp {
         this.c1envLength = 500
         this.c2envLength = 500
         this.c3envLength = 500
-        this.envShape = {
-            attackCurve : "exponential",
-            decayCurve : "exponential",
-            attack : 0.1
-        } 
         
-        this.out = new Tone.Gain(0.33)
+        this.out = new Tone.Gain(1.0);
+        this.op1gain = new Tone.Gain(0.333).connect(this.out);
+        this.op2gain = new Tone.Gain(0.333).connect(this.out);
+        this.op3gain = new Tone.Gain(0.333).connect(this.out);
         
         // OP 3
         this.fm3to2 = new Tone.Multiply()
         this.fm3to1 = new Tone.Multiply()
         
         this.c3env = new Tone.AmplitudeEnvelope()
-            .fan(this.out, this.fm3to2, this.fm3to1)
+            .fan(this.op3gain, this.fm3to2, this.fm3to1)
         this.c3 = new Tone.Oscillator(this.freq, "sine").start()
             .connect(this.c3env)
         this.c3freq = new Tone.Multiply().connect(this.c3.frequency)
@@ -34,7 +32,7 @@ class ThreeOp {
         // OP 2
         this.fm2to1 = new Tone.Multiply()
         this.c2env = new Tone.AmplitudeEnvelope()
-            .fan(this.out, this.fm2to1)
+            .fan(this.op2gain, this.fm2to1)
         this.c2 = new Tone.Oscillator(this.freq, "sine").start()
             .connect(this.c2env)
         this.c2fb1 = new Tone.Add().connect(this.c2.frequency)
@@ -42,7 +40,8 @@ class ThreeOp {
         this.c2ratio = new Tone.Signal(this._c2ratio).connect(this.c2freq) 
         
         // OP 1
-        this.c1env = new Tone.AmplitudeEnvelope().connect(this.out)
+        this.c1env = new Tone.AmplitudeEnvelope()
+            .connect(this.op1gain)
         this.c1 = new Tone.Oscillator(this.freq, "sine").start()
             .connect(this.c1env)
         this.c1fb2 = new Tone.Add().connect(this.c1.frequency)
