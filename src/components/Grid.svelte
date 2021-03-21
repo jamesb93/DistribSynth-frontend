@@ -78,8 +78,6 @@
     }
 
     const mirrorGridVertical = () => {
-        // 0 1 2 3 4 5
-        // 0 1 2 2 1 0
         for (let i=0; i < grid.length; i++) {
             if (i >= grid.length / 2) {
                 let mirrored = (grid.length-1)-i
@@ -302,41 +300,44 @@
         <BoxButton func={randomiseGrid} text="randomise" />
         <Clock bind:value={clockMode}/>
     </div>
-    <div class="grid" on:mousedown={handleMouseDown} on:mouseup={handleMouseUp}>
-        {#if gridValid}
-            {#each grid as row, x}
-                <div class="cell-container">
-                    {#if x === 0}
-                        {#each row as column, y}
-                            <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
-                        {/each}
-                    {/if}
-                </div>
-                <div class="cell-container">
-                    <div class="euclid-buffer">
-                        <Knob size={50} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/>
-                    </div>
-                    
-                    <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1); sendGrid()}}/>
-                    {#each row as column, y}
-                        <Cell
-                        selected={column}
-                        emph={pos === y}
-                        toggleFun = {()=> handleClick(x, y)}
-                        bind:mouse={mouseDown}
-                        />
-                    {/each}
-                    <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1); sendGrid()}}/>
-                </div>
-                <div class="cell-container">
-                    {#if x === grid.length-1}
-                        {#each row as column, y}
-                            <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
-                        {/each}
-                    {/if}
-                </div>
+    <div class="sequencer">
+        <div class="euclids">
+            {#each {length: 6} as _, x}
+                <Knob size={75} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/>
             {/each}
-        {/if}
+        </div>
+        <div class="grid" on:mousedown={handleMouseDown} on:mouseup={handleMouseUp}>
+            {#if gridValid}
+                {#each grid as row, x}
+                    <div class="cell-container">
+                        {#if x === 0}
+                            {#each row as column, y}
+                                <Arrow direction="up" func={() => {shiftColumnUp(y)}}/>
+                            {/each}
+                        {/if}
+                    </div>
+                    <div class="cell-container">
+                        <Arrow direction="left" func={() => {grid[x] = rotate(grid[x], 1); sendGrid()}}/>
+                        {#each row as column, y}
+                            <Cell
+                            selected={column}
+                            emph={pos === y}
+                            toggleFun = {()=> handleClick(x, y)}
+                            bind:mouse={mouseDown}
+                            />
+                        {/each}
+                        <Arrow direction="right" func={() => {grid[x] = rotate(grid[x], -1); sendGrid()}}/>
+                    </div>
+                    <div class="cell-container">
+                        {#if x === grid.length-1}
+                            {#each row as column, y}
+                                <Arrow direction="down" func={() => {shiftColumnDown(y)}}/>
+                            {/each}
+                        {/if}
+                    </div>
+                {/each}
+            {/if}
+        </div>
     </div>
 </div>
 
@@ -346,14 +347,17 @@
         flex-direction: row;
         gap: 10px;
     }
-    .euclid-buffer {
-        padding-right: 15px;
-    }
+
     .all-controls {
         display: flex;
         flex-direction: column;
         flex-wrap: wrap;
         gap: 10px;
+    }
+
+    .sequencer {
+        display: flex;
+        flex-direction: row;
     }
 
     .transforms {
@@ -366,6 +370,12 @@
         gap: 10px;
     }
 
+    .euclids {
+        display: grid;
+        grid-template-rows: repeat(8, auto);
+        grid-template-columns: auto;
+        align-items: center;
+    }
     .grid {
         display: grid;
         grid-template-rows: repeat(8, auto);
