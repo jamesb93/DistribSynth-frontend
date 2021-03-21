@@ -72,8 +72,20 @@
     })
 
     // Mirror
-    const mirrorGrid = () => {
+    const mirrorGridHorizontal = () => {
         grid = grid.map(x => mirror(x))
+        sendGrid()
+    }
+
+    const mirrorGridVertical = () => {
+        // 0 1 2 3 4 5
+        // 0 1 2 2 1 0
+        for (let i=0; i < grid.length; i++) {
+            if (i >= grid.length / 2) {
+                let mirrored = (grid.length-1)-i
+                grid[i] = grid[mirrored]
+            }
+        }
         sendGrid()
     }
 
@@ -267,7 +279,6 @@
     }
 </script>
 
-<svelte:window on:mousedown={handleMouseDown} on:mouseup={handleMouseUp} />
 
 <div class="all-controls">
     <div class="bpm-control">
@@ -284,13 +295,14 @@
         <Knob title="multiplier" min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
     </div>
     <div class="transforms">
-        <BoxButton func={mirrorGrid} text="mirror" />
+        <BoxButton func={mirrorGridHorizontal} text="mirror H" />
+        <BoxButton func={mirrorGridVertical} text="mirror V" />
         <BoxButton func={invertGrid} text="invert" />
         <BoxButton func={clearGrid} text="clear" />
         <BoxButton func={randomiseGrid} text="randomise" />
         <Clock bind:value={clockMode}/>
     </div>
-    <div class="grid">
+    <div class="grid" on:mousedown={handleMouseDown} on:mouseup={handleMouseUp}>
         {#if gridValid}
             {#each grid as row, x}
                 <div class="cell-container">
