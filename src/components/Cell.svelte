@@ -20,8 +20,6 @@
     />
 </div>
 
-<svelte:window  />
-
 <style>
 
     .base {
