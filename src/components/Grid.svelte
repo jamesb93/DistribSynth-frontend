@@ -364,6 +364,8 @@
         font-size: 36px;
         margin: auto 0;
         color: rgb(97, 96, 96);
+        width: 42px;
+        min-width: 42px;
     }
 
     .control-row {
