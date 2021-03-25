@@ -26,10 +26,12 @@
     let globalLength: number = 0.1
 
     // Metronome
-    let clockDirection: number = 1;
-    let clockMultiplier: number = 1.0;
+    const multiplierTable = [1, 1/16, 1/24, 1/0.5, 0.0];
     type clockStates = "forward" | "rebound" | "wander"
 	let clockMode: clockStates;
+    let clockDirection: number = 1;
+    let clockMultiplier: number = 1.0;
+    let clockMultiplierLookup = 0;
     let bpm: number = 120; // BPM
     let grid = [];
     let gridValid: boolean = false;
@@ -38,6 +40,8 @@
     let internalPos: number = 0;
     let mouseDown: boolean = false;
     $: Tone.Transport.bpm.value = bpm
+    $: clockMultiplier = multiplierTable[clockMultiplierLookup]
+
 
     const sendGrid = () => {
         socket.emit('grid', grid)
@@ -104,13 +108,12 @@
     }
 
     const sendMultiplier = () => {
-        console.log('sending')
-        socket.emit('clock::multiplier', clockMultiplier)
+        socket.emit('clock::multiplier', clockMultiplierLookup)
     }
     // Clock Modes
 
 	socket.on('clock::mode', data => clockMode = data);
-	socket.on('clock::multiplier', data => clockMultiplier = data);
+	socket.on('clock::multiplier', data => clockMultiplierLookup = data);
     
     // Socket
     socket.on('bpm', data => bpm = data);
@@ -277,6 +280,13 @@
     }
 </script>
 
+<!-- 0. = multiply by 1 
+0.5 = multiply by 16 
+0.7 = multiply by 24
+0.75 = multiply by 0.5
+1. = multiply buy 0. 
+-->
+
 
 <div class="all-controls">
     <div class="bpm-control">
@@ -284,14 +294,20 @@
     </div>
     <div class="main-controls">
     </div>
-    <div class="global-controls">
-        <Play bind:playing={play} start={startLoop} pause={stopLoop}/>
-        <Knob title="start" min={0} max={16} bind:value={offset.start} func={sendOffset} />
-        <Knob title="end" min={0} max={16} bind:value={offset.end} func={sendOffset} />
-        <Knob title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
-        <!-- <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} /> -->
-        <Knob title="multiplier" min={0.125} max={4} step={0.125} bind:value={clockMultiplier} func={sendMultiplier} />
+    <div class="control-row">
+        <div class="global-controls">
+            <Play bind:playing={play} start={startLoop} pause={stopLoop}/>
+            <Knob title="start" min={0} max={16} bind:value={offset.start} func={sendOffset} />
+            <Knob title="end" min={0} max={16} bind:value={offset.end} func={sendOffset} />
+            <Knob title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
+            <!-- <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} /> -->
+            <Knob title="multiplier" min={0} max={4} step={1} bind:value={clockMultiplierLookup} func={sendMultiplier} />
+        </div>
+        <div class="step">
+            {pos}
+        </div>
     </div>
+
     <div class="transforms">
         <BoxButton func={mirrorGridHorizontal} text="mirror H" />
         <BoxButton func={mirrorGridVertical} text="mirror V" />
@@ -342,6 +358,19 @@
 </div>
 
 <style>
+
+    .step {
+        font-family: 'Helvetica Neue', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', sans-serif;
+        font-size: 36px;
+        margin: auto 0;
+        color: rgb(97, 96, 96);
+    }
+
+    .control-row {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+    }
     .global-controls {
         display: flex;
         flex-direction: row;
