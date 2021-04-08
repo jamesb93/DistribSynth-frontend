@@ -30,6 +30,7 @@
         background: none;
         box-shadow: none;
         border-style: none;
+        border: 2px solid rgba(182, 182, 182, 0.468);
     }
     .container {
         padding: 4px;
