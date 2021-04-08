@@ -2,8 +2,8 @@ import * as Tone from "tone";
 
 class MetalSynthesis {
     constructor() {
-        this.out = new Tone.Gain(1)
-        this.limiter = new Tone.Limiter(-1).connect(this.out)
+        this.out = new Tone.Gain(1);
+        this.limiter = new Tone.Limiter(-0.1).connect(this.out)
         this.source = new Tone.MetalSynth().connect(this.limiter);
     }
 
@@ -12,4 +12,4 @@ class MetalSynthesis {
     }
 }
 
-export {MetalSynthesis}
+export { MetalSynthesis };

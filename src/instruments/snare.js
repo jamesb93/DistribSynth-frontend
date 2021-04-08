@@ -10,25 +10,25 @@ const membrane = new Tone.MembraneSynth({
         'decay' : 0.08,
         'sustain' : 0.01,
         'release' : 0.01
-    }
+    },
+    frequency: 160
 }).connect(out)
-membrane.frequency.rampTo(160, 0.1)
 
-const filter = new Tone.Filter(2750, "bandpass", -12)
+const filter = new Tone.Filter(5000, "bandpass", -12)
     .connect(env);
 const source = new Tone.Noise()
     .connect(filter)
-    .start()
+    .start();
 
 export const snare = {
-    source,
-    filter,
-    membrane,
-    env,
     out,
+    env,
+    membrane,
+    filter,
+    source,
     trigger: (time, velocity, duration) => {
         env.triggerAttack(time, velocity)
-        env.triggerRelease("+"+0.001)
+        env.triggerRelease(time+0.001)
         membrane.triggerAttackRelease(snare.membrane.frequency.value, duration, time, velocity)
     }
 }

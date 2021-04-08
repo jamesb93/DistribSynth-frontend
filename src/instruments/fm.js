@@ -13,10 +13,10 @@ class ThreeOp {
         this.c2envLength = 500
         this.c3envLength = 500
         
-        this.out = new Tone.Gain(1.0);
-        this.op1gain = new Tone.Gain(0.333).connect(this.out);
-        this.op2gain = new Tone.Gain(0.333).connect(this.out);
-        this.op3gain = new Tone.Gain(0.333).connect(this.out);
+        this.out = new Tone.Gain(4.0);
+        this.op1gain = new Tone.Gain(1.0).connect(this.out);
+        this.op2gain = new Tone.Gain(1.0).connect(this.out);
+        this.op3gain = new Tone.Gain(1.0).connect(this.out);
         
         // OP 3
         this.fm3to2 = new Tone.Multiply()
