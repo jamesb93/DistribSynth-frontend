@@ -9,5 +9,6 @@ text {
 }
 
 html {
-    background: rgb(220, 220, 220);
+    /* background: rgb(220, 220, 220); */
+    background: rgba(243,243,246,255);
 }
