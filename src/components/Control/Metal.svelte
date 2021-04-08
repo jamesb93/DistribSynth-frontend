@@ -1,6 +1,6 @@
 <script type="ts">
     import { socket } from "../stores.js";
-    import Slider from "../Slider.svelte";
+    import ASlider from "../ASlider.svelte";
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
@@ -21,7 +21,7 @@
 
 
     const uFrequency = () => {
-        socket.emit('params::'+id, 'frequency', parameters[id].frequency)
+        socket.emit('params::'+id, 'frequency', parameters[id].frequency);
     }
 
     const uHarmonicity = () => {
@@ -39,11 +39,6 @@
     const uOctaves = () => {
         socket.emit('params::'+id, 'octaves', parameters[id].octaves)
     }
-
-    const uOrder = () => {
-        socket.emit('params::'+id, 'order', parameters[id].order)
-    }
-
     const uAttack = () => {
         socket.emit('params::'+id, 'attack', parameters[id].attack)
     }
@@ -70,7 +65,6 @@
         parameters[id].modulationIndex = rng(0.01, 32); uModulationIndex();
         parameters[id].resonance = rng(200, 500); uResonance();
         parameters[id].octaves = rng(0, 3); uOctaves();
-        parameters[id].order = rng(1, 50); uOrder();
         parameters[id].attack = rng(0.001, 1); uAttack();
         parameters[id].decay = rng(0.001, 2); uDecay();
         parameters[id].release = rng(0.001, 1); uRelease();
@@ -79,15 +73,16 @@
 
 <ControlContainer>
     <ControlTitle title="Metal Synthesis" />
-    <Slider min="10" max="5000" step="1" title="Frequency" bind:value={parameters[id].frequency} func={uFrequency} />
-    <Slider min="0.0" max="5.1" step="0.1" title="Harmonicity" bind:value={parameters[id].harmonicity} func={uHarmonicity} />
-    <Slider min="0.01" max="32" step="0.1" title="Index" bind:value={parameters[id].modulationIndex} func={uModulationIndex} />
-    <Slider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
-    <Slider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
-    <Slider min="1" max="50" step="1" title="waveshape" bind:value={parameters[id].order} func={uOrder} />
-    <Slider min="0.001" max="1" step="0.001" title="attack" bind:value={parameters[id].attack} func={uAttack} />
-    <Slider min="0.001" max="2" step="0.001" title="decay" bind:value={parameters[id].decay} func={uDecay} />
-    <Slider min="0.001" max="1" step="0.001" title="release" bind:value={parameters[id].release} func={uRelease} />
+    <ASlider min="10" max="5000" step="1" title="Frequency" bind:value={parameters[id].frequency} func={uFrequency} />
+    <ASlider min="0.0" max="5.1" step="0.1" title="Harmonicity" bind:value={parameters[id].harmonicity} func={uHarmonicity} />
+    <ASlider min="0.01" max="32" step="0.1" title="Index" bind:value={parameters[id].modulationIndex} func={uModulationIndex} />
+    <ASlider min="200" max="5000" step="1" title="Resonance" bind:value={parameters[id].resonance} func={uResonance} />
+    <ASlider min="0" max="3" step="0.25" title="Octaves" bind:value={parameters[id].octaves} func={uOctaves}/>
+    <ASlider min="0.001" max="1" step="0.001" title="attack" bind:value={parameters[id].attack} func={uAttack} />
+    <ASlider min="0.001" max="2" step="0.001" title="decay" bind:value={parameters[id].decay} func={uDecay} />
+    <ASlider min="0.001" max="1" step="0.001" title="release" bind:value={parameters[id].release} func={uRelease} />
+    
+
     <Presets bind:data={parameters} key={id} />
     <button on:click={randomise}>randomise</button>
 </ControlContainer>

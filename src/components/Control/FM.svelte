@@ -1,6 +1,6 @@
 <script>
     import { socket } from "../stores.js";
-    import Slider from "../Slider.svelte";
+    import ASlider from "../ASlider.svelte";
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
@@ -25,47 +25,44 @@
     $: instrument.op3gain.gain.rampTo(parameters[id].op3gain * 0.333, 0.1);
 
     const uFrequency = () => {
-        socket.emit('params::'+id, 'frequency', parameters[id].frequency)
+        socket.emit('params::'+id, 'frequency', parameters[id].frequency);
     };
     const uc1ratio = () => {
-        socket.emit('params::'+id, 'c1ratio', parameters[id].c1ratio)
+        socket.emit('params::'+id, 'c1ratio', parameters[id].c1ratio);
     };
     const uc2ratio = () => {
-        socket.emit('params::'+id, 'c2ratio', parameters[id].c2ratio)
+        socket.emit('params::'+id, 'c2ratio', parameters[id].c2ratio);
     };
     const uc3ratio = () => {
-        socket.emit('params::'+id, 'c3ratio', parameters[id].c3ratio)
+        socket.emit('params::'+id, 'c3ratio', parameters[id].c3ratio);
     };
     const ufm2to1 = () => {
-        socket.emit('params::'+id, 'fm2to1', parameters[id].fm2to1)
+        socket.emit('params::'+id, 'fm2to1', parameters[id].fm2to1);
     };
     const ufm3to2 = () => {
-        socket.emit('params::'+id, 'fm3to2', parameters[id].fm3to2)
+        socket.emit('params::'+id, 'fm3to2', parameters[id].fm3to2);
     };
     const ufm3to1 = () => {
-        socket.emit('params::'+id, 'fm3to1', parameters[id].fm3to1)
+        socket.emit('params::'+id, 'fm3to1', parameters[id].fm3to1);
     };
     const uc1env = () => {
-        socket.emit('params::'+id, 'c1env', parameters[id].c1env)
+        socket.emit('params::'+id, 'c1env', parameters[id].c1env);
     };
     const uc2env = () => {
-        socket.emit('params::'+id, 'c2env', parameters[id].c2env)
+        socket.emit('params::'+id, 'c2env', parameters[id].c2env);
     };
     const uc3env = () => {
-        socket.emit('params::'+id, 'c3env', parameters[id].c3env)
+        socket.emit('params::'+id, 'c3env', parameters[id].c3env);
     };
-
     const uop1gain = () => {
-        socket.emit('params::'+id, 'op1gain', parameters[id].op1gain)
-    }
-
+        socket.emit('params::'+id, 'op1gain', parameters[id].op1gain);
+    };
     const uop2gain = () => {
-        socket.emit('params::'+id, 'op2gain', parameters[id].op2gain)
-    }
-
+        socket.emit('params::'+id, 'op2gain', parameters[id].op2gain);
+    };
     const uop3gain = () => {
-        socket.emit('params::'+id, 'op3gain', parameters[id].op3gain)
-    }
+        socket.emit('params::'+id, 'op3gain', parameters[id].op3gain);
+    };
     
     socket.on('params::'+id+'::frequency', data => {parameters[id].frequency = data});
     socket.on('params::'+id+'::c1ratio', data => {parameters[id].c1ratio = data});
@@ -100,19 +97,20 @@
 
 <ControlContainer>
     <ControlTitle title="3OP FM"/>
-    <Slider title="Frequency" min="20" max="800" bind:value={parameters[id].frequency} func={uFrequency} />
-    <Slider title="Ratio 1" min="1" max="10" bind:value={parameters[id].c1ratio} func={uc1ratio} />
-    <Slider title="Ratio 2" min="1" max="10" bind:value={parameters[id].c2ratio} func={uc2ratio} />
-    <Slider title="Ratio 3" min="1" max="10" bind:value={parameters[id].c3ratio} func={uc3ratio} />
-    <Slider title="FB 2to1" min="0" max="5000" bind:value={parameters[id].fm2to1} func={ufm2to1} />
-    <Slider title="FB 3to1" min="0" max="5000" bind:value={parameters[id].fm3to1} func={ufm3to1} />
-    <Slider title="FB 3to2" min="0" max="5000" bind:value={parameters[id].fm3to2} func={ufm3to2} />
-    <Slider title="Envelope Length 1" min="0.05" max="5" bind:value={parameters[id].c1env} func={uc1env} />
-    <Slider title="Envelope Length 2" min="0.05" max="5" bind:value={parameters[id].c2env} func={uc2env} />
-    <Slider title="Envelope Length 3" min="0.05" max="5" bind:value={parameters[id].c3env} func={uc3env} />
-    <Slider title="OP1 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op1gain} func={uop1gain} />
-    <Slider title="OP2 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op2gain} func={uop2gain} />
-    <Slider title="OP3 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op3gain} func={uop3gain} />
+    <ASlider title="Frequency" min="1" max="15000" bind:value={parameters[id].frequency} func={uFrequency} />
+    <ASlider title="Ratio 1" min="1" max="100" bind:value={parameters[id].c1ratio} func={uc1ratio} />
+    <ASlider title="Ratio 2" min="1" max="100" bind:value={parameters[id].c2ratio} func={uc2ratio} />
+    <ASlider title="Ratio 3" min="1" max="100" bind:value={parameters[id].c3ratio} func={uc3ratio} />
+    <ASlider title="FB 2to1" min="0" max="20000" bind:value={parameters[id].fm2to1} func={ufm2to1} />
+    <ASlider title="FB 3to1" min="0" max="20000" bind:value={parameters[id].fm3to1} func={ufm3to1} />
+    <ASlider title="FB 3to2" min="0" max="20000" bind:value={parameters[id].fm3to2} func={ufm3to2} />
+    <ASlider title="Envelope Length 1" min="0.05" max="5" bind:value={parameters[id].c1env} func={uc1env} />
+    <ASlider title="Envelope Length 2" min="0.05" max="5" bind:value={parameters[id].c2env} func={uc2env} />
+    <ASlider title="Envelope Length 3" min="0.05" max="5" bind:value={parameters[id].c3env} func={uc3env} />
+    <ASlider title="OP1 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op1gain} func={uop1gain} />
+    <ASlider title="OP2 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op2gain} func={uop2gain} />
+    <ASlider title="OP3 Gain" min="0" max="1" step="0.001" bind:value={parameters[id].op3gain} func={uop3gain} />
+    
     <Presets bind:data={parameters} key={id} />
     <button on:click={randomise}>randomise</button>
 </ControlContainer>

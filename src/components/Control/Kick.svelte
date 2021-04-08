@@ -1,6 +1,7 @@
 <script>
     import { socket } from "../stores.js";
-    import Slider from "../Slider.svelte";
+    import ASlider from "../ASlider.svelte";
+    import TextInput from "../TextInput.svelte";
     import ControlTitle from "./ControlTitle.svelte";
     import ControlContainer from "./ControlContainer.svelte";
     import Presets from "./Presets.svelte";
@@ -9,39 +10,46 @@
     export let instrument;
     export let parameters;
 
-    $: instrument.membrane.octaves = parameters.kick.octaves
-    $: instrument.membrane.frequency.rampTo(parameters.kick.frequency, 0.1)
-    $: instrument.membrane.envelope.attack = parameters.kick.attack;
-    $: instrument.membrane.envelope.sustain = parameters.kick.sustain;
-    $: instrument.membrane.envelope.decay = parameters.kick.decay;
-    $: instrument.membrane.envelope.release = parameters.kick.release;
-    $: instrument.distortion.distortion = parameters.kick.distortion;
+    // $: instrument.membrane.octaves = parameters.kick.octaves
+    // $: instrument.membrane.frequency.rampTo(parameters.kick.frequency, 0.1)
+    // $: instrument.membrane.envelope.attack = parameters.kick.attack;
+    // $: instrument.membrane.envelope.sustain = parameters.kick.sustain;
+    // $: instrument.membrane.envelope.decay = parameters.kick.decay;
+    // $: instrument.membrane.envelope.release = parameters.kick.release;
+    // $: instrument.distortion.distortion = parameters.kick.distortion;
 
     const uFrequency = () => {
-        socket.emit('params::kick', 'frequency', parameters.kick.frequency)
+        socket.emit('params::kick', 'frequency', parameters.kick.frequency);
+        instrument.membrane.frequency.rampTo(parameters.kick.frequency, 0.1)
     };
 
     const uOctaves = () => {
         socket.emit('params::kick', 'octaves', parameters.kick.octaves)
+        instrument.membrane.octaves = parameters.kick.octaves
     }
 
     const uAttack  = () => {
-        socket.emit('params::kick', 'attack', parameters.kick.attack)
+        socket.emit('params::kick', 'attack', parameters.kick.attack);
+        instrument.membrane.envelope.attack = parameters.kick.attack;
     };
 
     const uDecay   = () => {
-        socket.emit('params::kick', 'decay', parameters.kick.decay)
+        socket.emit('params::kick', 'decay', parameters.kick.decay);
+        instrument.membrane.envelope.decay = parameters.kick.decay;
     };
 
     const uRelease = () => {
-        socket.emit('params::kick', 'release', parameters.kick.release)
+        socket.emit('params::kick', 'release', parameters.kick.release);
+        instrument.membrane.envelope.release = parameters.kick.release;
     };
     const uSustain = () => {
-        socket.emit('params::kick', 'sustain', parameters.kick.sustain)
+        instrument.membrane.envelope.sustain = parameters.kick.sustain;
+        socket.emit('params::kick', 'sustain', parameters.kick.sustain);
     };
 
     const uDistortion = () => {
-        socket.emit('params::kick', 'distortion', parameters.kick.distortion)
+        socket.emit('params::kick', 'distortion', parameters.kick.distortion);
+        instrument.distortion.distortion = parameters.kick.distortion;
     }
     
     socket.on('params::kick::distortion', (data) => {parameters.kick.distortion = data});
@@ -65,13 +73,14 @@
 
 <ControlContainer>
     <ControlTitle title="Kick Synth"/>
-    <Slider title="Frequency" min="35" max="90" bind:value={parameters.kick.frequency} func={uFrequency} />
-    <Slider title="Octaves" min="0.5" max="8" step="0.5" bind:value={parameters.kick.octaves} func={uOctaves}/>
-    <Slider title="Attack" min="0.0" max="0.1" step="0.001" bind:value={parameters.kick.attack} func={uAttack} />
-    <Slider title="Decay" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.decay} func={uDecay} />
-    <Slider title="Sustain" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.sustain} func={uSustain} />
-    <Slider title="Release" min="0.0" max="1.4" step="0.05" bind:value={parameters.kick.release} func={uRelease} />
-    <Slider title="Distortion" min="0.0" max="1.0" step="0.01" bind:value={parameters.kick.distortion} func={uDistortion} />
+    <ASlider title="Frequency" min="35" max="90" bind:value={parameters.kick.frequency} func={uFrequency} />
+    <ASlider title="Octaves" min="0.5" max="8" step="0.5" bind:value={parameters.kick.octaves} func={uOctaves}/>
+    <ASlider title="Attack" min="0.0" max="0.1" step="0.001" bind:value={parameters.kick.attack} func={uAttack} />
+    <ASlider title="Decay" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.decay} func={uDecay} />
+    <ASlider title="Sustain" min="0.0" max="1.0" step="0.05" bind:value={parameters.kick.sustain} func={uSustain} />
+    <ASlider title="Release" min="0.0" max="1.4" step="0.05" bind:value={parameters.kick.release} func={uRelease} />
+    <ASlider title="Distortion" min="0.0" max="1.0" step="0.01" bind:value={parameters.kick.distortion} func={uDistortion} />
+    
     <Presets bind:data={parameters} key={'kick'} />
     <button on:click={randomise}>randomise</button>
 </ControlContainer>
