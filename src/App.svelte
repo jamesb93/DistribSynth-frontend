@@ -1,6 +1,6 @@
 <script lang="ts">
 	import * as Tone from "tone";
-	import { numUsers, socket, room } from "./components/stores.js";
+	import { numUsers, socket, room, recentParamName, recentParamValue } from "./components/stores.js";
 	import { fade } from "svelte/transition";
 	import Grid from "./components/Grid.svelte";
 	import Snare from "./components/Control/Snare.svelte";
@@ -42,6 +42,7 @@
 </script>
 
 <main>
+	{$recentParamName} | {$recentParamValue}
 	<div class="shared">
 		<RoomPrompt />
 		{#if $room !== ""}
