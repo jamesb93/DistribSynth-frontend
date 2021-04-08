@@ -1,7 +1,6 @@
 <script type="ts">
     import * as Tone from "tone";
     import Arrow from './Arrow.svelte';
-    import Slider from "./Slider.svelte";
     import Clock from "./Control/Clock.svelte";
     import BoxButton from "./BoxButton.svelte";
     import Cell from "./Cell.svelte";
@@ -10,9 +9,7 @@
     import { socket } from "../components/stores.js";
     import { getPattern } from "./euclid.js";
     import { mirror } from "./matrix.js";
-    import ControlTitle from "./Control/ControlTitle.svelte";
     import Knob from "./Knob.svelte";
-    import FlatSlider from "./FlatSlider.svelte";   
     import Play from "./Play.svelte";
 
     // Instruments
@@ -27,10 +24,10 @@
 
     // Metronome
     const multiplierTable = [1, 1/16, 1/24, 1/0.5, 0.0];
-    type clockStates = "forward" | "rebound" | "wander"
+    type clockStates = "forward" | "rebound" | "wander";
 	let clockMode: clockStates;
     let clockDirection: number = 1;
-    let clockMultiplier: number = 1.0;
+    let clockMultiplier: number;
     let clockMultiplierLookup = 0;
     let bpm: number = 120; // BPM
     let grid = [];
@@ -41,7 +38,6 @@
     let mouseDown: boolean = false;
     $: Tone.Transport.bpm.value = bpm
     $: clockMultiplier = multiplierTable[clockMultiplierLookup]
-
 
     const sendGrid = () => {
         socket.emit('grid', grid)
@@ -60,7 +56,7 @@
     socket.on('length', data => globalLength = data)
 
     let offset = {
-        start : 0,
+        start : 1,
         end : 16
     }
 
@@ -96,7 +92,6 @@
         sendGrid()
     }
 
-    socket.on('clock::offset', data => {offset = data})
     const sendOffset = () => {
         socket.emit('clock::offset', offset)
     }
@@ -108,12 +103,16 @@
     }
 
     const sendMultiplier = () => {
+        console.log('sending', clockMultiplierLookup)
         socket.emit('clock::multiplier', clockMultiplierLookup)
     }
     // Clock Modes
-
 	socket.on('clock::mode', data => clockMode = data);
-	socket.on('clock::multiplier', data => clockMultiplierLookup = data);
+    socket.on('clock::offset', data => offset = data)
+	socket.on('clock::multiplier', data => {
+        console.log('received clock from server', data)
+        clockMultiplierLookup = data
+    });
     
     // Socket
     socket.on('bpm', data => bpm = data);
@@ -123,28 +122,29 @@
         gridValid = true;
     })
     
-    const FM1 = 0
-    const FM2 = 1
+    // Declare indices here so you can easily swap the order.
+    const FM1 = 4
+    const FM2 = 5
     const M1 = 2
     const M2 = 3
-    const SNARE = 4;
-    const KICK = 5;
+    const SNARE = 1;
+    const KICK = 0;
 
     const loop = new Tone.Loop(time => {
         if (grid[SNARE][pos] === true) {
-            snare.trigger(time, globalVelocity)
+            snare.trigger(time, globalVelocity, 0.1)
         }
 
         if (grid[M1][pos] === true) {
-            metal1.trigger(time, globalVelocity)
+            metal1.trigger(time, globalVelocity, 0.1)
         }
         
         if (grid[M2][pos] === true) {
-            metal2.trigger(time, globalVelocity)
+            metal2.trigger(time, globalVelocity, 0.1)
         }
 
         if (grid[KICK][pos] === true) {
-            kick.trigger(time, globalVelocity)
+            kick.trigger(time, globalVelocity, 0.1)
         }
 
         if (grid[FM1][pos] === true) {
@@ -157,44 +157,49 @@
 
         if (clockMode === "forward") {
             internalPos += clockMultiplier
-            internalPos = wrap(internalPos, offset.start, offset.end)
+            internalPos = wrap(internalPos, offset.start-1, offset.end)
             pos = Math.floor(internalPos)
 
         } else if (clockMode === "rebound") {
+
             if (clockDirection === 1) { // if progressing forward
                 if (pos === offset.end-1) {
-                    internalPos -= clockMultiplier
                     clockDirection = 0 // change to backward
-                } else { // anywhere else
+                } 
+                else { // anywhere else
                     internalPos += clockMultiplier
                 }
-            } else if (clockDirection === 0) { // if progressing backward
-                if (pos === offset.start) { // if we're at the left boundary
+            } 
+            if (clockDirection === 0) { // if progressing backward
+                if (pos === offset.start-1) { // if we're at the left boundary
                     internalPos += clockMultiplier
                     clockDirection = 1 // change to forward
-                } else {
+                } 
+                else {
                     internalPos -= clockMultiplier
                 }   
             }
-            internalPos = wrap(internalPos, offset.start, offset.end)
-            pos = Math.floor(internalPos)  
+            internalPos = wrap(internalPos, offset.start-1, offset.end)
+            pos = Math.floor(internalPos);
+            console.log(pos)
 
         } else if (clockMode === "wander") {
-            if (pos === offset.start) {
+            if (pos === offset.start-1) {
                 internalPos += clockMultiplier
-            } else if (pos >= offset.end-1) {
+            } 
+            else if (pos >= offset.end-1) {
                 internalPos -= clockMultiplier
-            } else {
-                let randomWalk = Math.random() <= 0.5;
-                if (randomWalk) {
+            } 
+            else {
+                if (Math.random() <= 0.5) {
                     internalPos += clockMultiplier
                 } else {
                     internalPos -= clockMultiplier
                 }
             }
-            internalPos = wrap(internalPos, offset.start, offset.end)
-            pos = Math.round(internalPos)
-            pos = Math.min(Math.max(pos, offset.start), offset.end-1)
+            internalPos = wrap(internalPos, offset.start-1, offset.end);
+            pos = Math.floor(internalPos);
+            pos = Math.min(Math.max(pos, offset.start-1), offset.end-1);
         }
         
     }, "16n").start(0);
@@ -290,28 +295,24 @@
 
 <div class="all-controls">
     <div class="bpm-control">
-        <FlatSlider min=60 max=300 step=1 bind:value={bpm} func={sendBpm} />
     </div>
     <div class="main-controls">
     </div>
     <div class="control-row">
         <div class="global-controls">
             <Play bind:playing={play} start={startLoop} pause={stopLoop}/>
-            <Knob title="start" min={0} max={16} bind:value={offset.start} func={sendOffset} />
-            <Knob title="end" min={0} max={16} bind:value={offset.end} func={sendOffset} />
-            <Knob title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
+            <Knob title="BPM" min={60} max={300} step={1} bind:value={bpm} func={sendBpm} />
+            <Knob scale=0.125 title="start" min={1} max={16} bind:value={offset.start} func={sendOffset} />
+            <Knob title="end" min={1} max={16} bind:value={offset.end} func={sendOffset} />
+            <Knob scale=0.01 title="velocity" min={0} max={1} step={0.01} bind:value={globalVelocity} func={sendVelocity} />
             <!-- <Knob title="length" min={0.05} max={5} step={0.01} bind:value={globalLength} func={sendLength} /> -->
-            <Knob title="multiplier" min={0} max={4} step={1} bind:value={clockMultiplierLookup} func={sendMultiplier} />
-        </div>
-        <div class="step">
-            {pos}
+            <Knob scale=0.025 title="multiplier" min={0} max={4} step={1} bind:value={clockMultiplierLookup} func={sendMultiplier} />
         </div>
     </div>
 
     <div class="transforms">
         <BoxButton func={mirrorGridHorizontal} text="mirror H" />
         <BoxButton func={mirrorGridVertical} text="mirror V" />
-        <BoxButton func={invertGrid} text="invert" />
         <BoxButton func={clearGrid} text="clear" />
         <BoxButton func={randomiseGrid} text="randomise" />
         <Clock bind:value={clockMode}/>
@@ -319,7 +320,7 @@
     <div class="sequencer">
         <div class="euclids">
             {#each {length: 6} as _, x}
-                <Knob size={75} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/>
+                <Knob scale=0.2 size={75} min={0} max={16} bind:value={euclidSteps[x]} func={() => sendEuclid(x)}/>
             {/each}
         </div>
         <div class="grid" on:mousedown={handleMouseDown} on:mouseup={handleMouseUp}>
