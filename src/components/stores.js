@@ -17,6 +17,8 @@ if (storedRoom !== "") {
     room.set(storedRoom)
 }
 
+export const recentParamValue = writable('')
+export const recentParamName = writable('')
 socket.on('connect', () => {
     console.log('connected to ', socketAddr)
 })
