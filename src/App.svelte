@@ -22,8 +22,16 @@
 	let humanParams = ""
 	$: humanParams = JSON.stringify(params, null, 4)
 
-	const masterLimiter = new Tone.Limiter(-5).toDestination();
-	const masterGain = new Tone.Gain(masterGainAmount).connect(masterLimiter);
+	const masterLimiter = new Tone.Limiter(-3).toDestination();
+	const makeUp = new Tone.Gain(3).connect(masterLimiter);
+	const masterComp = new Tone.Compressor({
+		attack: 1 / 1000,
+		release: 300 / 1000,
+		ratio: 4,
+		knee: 5,
+		threshold: -3,
+	}).connect(makeUp);
+	const masterGain = new Tone.Gain(masterGainAmount).connect(masterComp);
 	$: masterGain.gain.rampTo(masterGainAmount, 0.1)
 
 	const metal1 = new MetalSynthesis()
@@ -47,7 +55,7 @@
 		<RoomPrompt />
 		{#if $room !== ""}
 			<Editor bind:text={humanParams}/>
-			<Knob title="volume" size={50} min={0} max={1} step={0.001} bind:value={masterGainAmount} />
+			<Knob scale=0.01 title="volume" size={50} min={0} max={1} step={0.001} bind:value={masterGainAmount} />
 		{/if}
 	</div>
 	{#if $room !== ""}
