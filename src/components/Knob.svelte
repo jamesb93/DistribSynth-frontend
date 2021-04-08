@@ -1,57 +1,69 @@
-<div class="knob-control" style="{style}" bind:this={knob} on:mousedown={onMouseDown}>
-    <svg width="{computedSize}" height="{computedSize}" viewBox="0 0 120 120"
-        on:click={onClick}
-        on:touchstart="{onTouchStart}"
-        on:touchend="{onTouchEnd}"
-    >
-    <text
+<svelte:window on:mousemove={moveHandler} on:mouseup={upHandler} />
+
+<div class="knob-control" style="{style}" bind:this={knob} on:mousedown|preventDefault={downHandler}>
+    <svg width="{computedSize}" height="{computedSize}" viewBox="0 0 120 120">
+        <text
         x="60"
         y="20"
         text-anchor="middle"
         fill="{textColor}"
         class="knob-control__text-display"
-    >
-    {title}
-</text>
-<path
+        >
+        {title}
+    </text>
+    <path
     d="{rangePath}"
     stroke-width="{strokeWidth}"
     stroke="{secondaryColor}"
     class="knob-control__range">
 </path>
+<path
+d="{valuePath}"
+stroke-width="{strokeWidth}"
+stroke={primaryColor}
+bind:this={pathValue}
+data-dash="{length}"
+style="{dashStyle}"
+class="knob-control__value">
+</path>
+
+<path
+d={pointerPath}
+stroke-width=2
+stroke={secondaryColor}
+>
+</path>
 
 {#if showValue}
-<path
-    d="{valuePath}"
-    stroke-width="{strokeWidth}"
-    stroke="{primaryColor}"
-    bind:this={pathValue}
-    data-dash="{length}"
-    style="{dashStyle}"
-    class="knob-control__value">
-</path>
 <text
-    x="60"
-    y="77"
-    text-anchor="middle"
-    fill="{textColor}"
-    class="knob-control__text-display"
+x={MID_X}
+y={MID_Y+50}
+text-anchor="middle"
+fill="{textColor}"
+class="knob-control__text-display"
 >
-{valueDisplay}
+{value}
 </text>
 {/if}
 </svg>
 </div>
 
-<!-- <svelte:window on:mousemove={moveHandler} on:mouseup={upHandler} /> -->
 
 <script>
     import { onMount } from 'svelte';
-    import { clip } from "./clip.js";
     
-    const RADIUS = 40;
+    const clip = (i, low, high) => {
+        return Math.min(Math.max(i, low), high)
+    }
+    
+    const round = (x, precision) => {
+        var multiplier = Math.pow(10, precision || 0);
+        return Math.round(x * multiplier) / multiplier;
+    }
+    
+    const RADIUS = 25;
     const MID_X = 60;
-    const MID_Y = 80;
+    const MID_Y = 60;
     const MIN_RADIANS = 4 * Math.PI / 3;
     const MAX_RADIANS = -Math.PI / 3;
     
@@ -59,15 +71,8 @@
     let knob;
     
     let length = 0;
-    let animatedValue = 0;
     let interval = null;
     
-    const round = (value, precision) => {
-        var multiplier = Math.pow(10, precision || 0);
-        return Math.round(value * multiplier) / multiplier;
-    }
-    
-    export let func;
     export let title = "";
     
     export let animation = {
@@ -82,31 +87,21 @@
     export let min = 0;
     export let showValue = true;
     
-    export let disabled = false;
+    export const disabled = false;
     export let step = 1;
     export let size = 100;
     export let responsive = false;
     export let primaryColor = '#bf5d5d';
     export let secondaryColor = '#989898';
     export let textColor = '#000000';
-    export let strokeWidth = 17;
-    export let valueDisplayFunction = (v) => { return round(v, 1) } ;
+    export let strokeWidth = 4;
     
-    onMount(async () => {
+    export let func = () => {};
+    
+    onMount(() => {
         dashLength()
         clearInterval(interval);
-        
         interval = null;
-        if (animation.animateValue) {
-            interval = setInterval(() => {
-                if (animatedValue < value) {
-                    animatedValue += 1;
-                } else {
-                    clearInterval(interval);
-                    interval = null;
-                }
-            }, (animation.animationDuration * 1000) / value / 1000);
-        }
     });
     
     $: dashStyle = {
@@ -118,6 +113,7 @@
     $: computedSize = responsive ? size + '%' : size
     $: rangePath = `M ${minX} ${minY} A ${RADIUS} ${RADIUS} 0 1 1 ${maxX} ${maxY}`;
     $: valuePath = `M ${zeroX} ${zeroY} A ${RADIUS} ${RADIUS} 0 ${largeArc} ${sweep} ${valueX} ${valueY}`;
+    $: pointerPath = `M ${MID_X} ${MID_Y} L ${valueX} ${valueY}`;
     $: zeroRadians = (min > 0 && max > 0) ?mapRange(min, min, max, MIN_RADIANS, MAX_RADIANS):mapRange(0, min, max, MIN_RADIANS, MAX_RADIANS);
     $: valueRadians = mapRange(value, min, max, MIN_RADIANS, MAX_RADIANS);
     $: minX = MID_X + Math.cos(MIN_RADIANS) * RADIUS;
@@ -130,38 +126,19 @@
     $: valueY = MID_Y - Math.sin(valueRadians) * RADIUS;
     $: largeArc = Math.abs(zeroRadians - valueRadians) < Math.PI ? 0 : 1;
     $: sweep = valueRadians > zeroRadians ? 0 : 1;
-    $: valueDisplay = animation.animateValue ? valueDisplayFunction(animatedValue) : valueDisplayFunction(value);
     
+    export let scale = 1.0;
+    let internal = value;
     let pv = null;
-    const updatePosition = (offsetX, offsetY) => {
-        const dx = offsetX - size / 2;
-        const dy = size / 2 - offsetY;
-        const angle = Math.atan2(dy, dx);
-        
-        let mappedValue;
-        
-        const start = -Math.PI / 2 - Math.PI / 6;
-        
-        if (angle > MAX_RADIANS) {
-            mappedValue = mapRange(angle, MIN_RADIANS, MAX_RADIANS, min, max);
-        } else if (angle < start) {
-            mappedValue = mapRange(angle + 2 * Math.PI, MIN_RADIANS, MAX_RADIANS, min, max);
-        } else {
-            return;
+    const updatePosition = (change) => {
+        internal += change * scale;
+        internal = clip(internal, min, max);
+        if (pv && (pv != value)) {
+            func()
         }
-        
-        value = Math.round((mappedValue - min) / step) * step + min;
-        if (pv != value) {
-            func();
-        }
-        pv = value; 
-    };
-
-    const scale = 1;
-    const updatePosition2 = (change) => {
-        value += change * scale
+        pv = internal
+        value = internal
         value = Math.round((value - min) / step) * step + min;
-        value = clip(value, min, max)
     }
     
     let anchor = null;
@@ -171,73 +148,20 @@
             updatePosition(e.movementY * -1)
         }
     };
-
+    
     const downHandler = (e) => {
+        down=true;
+        primaryColor = "#9c4c4c";
         anchor = e.screenY;
-        down=true
-    }
-
-    const upHandler = () => {
-        down=false
     }
     
-    function onClick(e) {
-        if (!disabled) {
-            updatePosition(e.offsetX, e.offsetY);
-        }
-    };
+    const upHandler = (e) => {
+        down=false;
+        primaryColor = '#bf5d5d';
+    }
     
-    function onMouseDown(e) {
-        if (!disabled) {
-            e.preventDefault();
-            window.addEventListener('mousemove', onMouseMove);
-            window.addEventListener('mouseup', onMouseUp);
-        }
-    };
-    
-    function onMouseUp(e) {
-        if (!disabled) {
-            e.preventDefault();
-            window.removeEventListener('mousemove', onMouseMove);
-            window.removeEventListener('mouseup', onMouseUp);
-        }
-    };
-    
-    function onTouchStart(e) {
-        if (!disabled) {
-            e.preventDefault();
-            window.addEventListener('touchmove', onTouchMove);
-            window.addEventListener('touchend', onTouchEnd);
-        }
-    };
-    
-    function onTouchEnd(e) {
-        if (!disabled) {
-            e.preventDefault();
-            window.removeEventListener('touchmove', onTouchMove);
-            window.removeEventListener('touchend', onTouchEnd);
-        }
-    };
-    
-    function onMouseMove(e) {
-        if (!disabled) {
-            e.preventDefault();
-            updatePosition(e.offsetX, e.offsetY);
-        }
-    };
-    
-    function onTouchMove(e) {
-        if (!disabled && e.touches.length == 1) {
-            const boundingClientRect = knob.getBoundingClientRect();
-            const touch = e.targetTouches.item(0);
-            const offsetX = touch.clientX - boundingClientRect.left;
-            const offsetY = touch.clientY - boundingClientRect.top;
-            updatePosition(offsetX, offsetY);
-        }
-    };
     
     function dashLength() {
-        
         let element = pathValue;
         let length = element.getTotalLength()
         if (animation.animated) {
@@ -282,3 +206,5 @@
         user-select: none;
     }
 </style>
+
+
