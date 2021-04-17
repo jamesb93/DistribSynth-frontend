@@ -1,33 +1,73 @@
 {
-  "name": "svelte-app",
+  "name": "routify-app",
   "version": "1.0.0",
+  "@comments scripts": {
+    "dev": "run all dev:* scripts",
+    "dev:routify": "generate Routify's routes.js on filechange",
+    "build": "run all build:* scripts",
+    "build:routify": "build routify",
+    "serve": "serve content in 'dist' folder"
+  },
   "scripts": {
-    "build": "rollup -c",
-    "dev": "rollup -c -w",
-    "start": "sirv public",
-    "validate": "svelte-check"
+    "dev": "run-p dev:*",
+    "dev:routify": "routify",
+    "serve": "run-p serve:*",
+    "serve:spa": "spassr",
+    "serve:ssr": "spassr --ssr --port 5005",
+    "build": "cross-env NODE_ENV=production run-s build:*",
+    "build:routify": "routify -b",
+    "test": "npm run test:dev && npm run test:build",
+    "test:dev": "node test/lib/wrapper dev ava test/{common,dev}/**/*.test.js",
+    "test:build": "node test/lib/wrapper build ava test/{common,build}/**/*.test.js",
+    "dev:vite": "vite",
+    "build:vite": "vite build",
+    "serve:vite": "vite preview",
+    "build:static": "spank"
   },
   "devDependencies": {
-    "@rollup/plugin-commonjs": "^16.0.0",
-    "@rollup/plugin-node-resolve": "^10.0.0",
-    "@rollup/plugin-typescript": "^6.0.0",
-    "@tsconfig/svelte": "^1.0.0",
-    "rollup": "^2.3.4",
-    "rollup-plugin-css-only": "^3.0.0",
-    "rollup-plugin-livereload": "^2.0.0",
-    "rollup-plugin-svelte": "^7.0.0",
-    "rollup-plugin-terser": "^7.0.0",
-    "svelte": "^3.0.0",
-    "svelte-check": "^1.0.0",
-    "svelte-preprocess": "^4.0.0",
-    "tslib": "^2.0.0",
-    "typescript": "^3.9.3"
+    "@ava/cooperate": "^0.1.0",
+    "@roxi/routify": "^2.14.0",
+    "@sveltejs/vite-plugin-svelte": "^1.0.0-next.6",
+    "cross-env": "^7.0.3",
+    "fkill": "^7.1.0",
+    "mdsvex": "^0.8.9",
+    "npm-run-all": "^4.1.5",
+    "playwright": "^1.8.0",
+    "remark-slug": "^6.0.0",
+    "routify-plugin-frontmatter": "^1.0.1",
+    "spank": "^1.5.0",
+    "spassr": "^2.4.1-0",
+    "svelte": "^3.35.0",
+    "svelte-hmr": "^0.12.5",
+    "vite": "^2.0.5"
+  },
+  "routify": {
+    "extensions": [
+      "md",
+      "svelte"
+    ],
+    "plugins": {
+      "routify-plugin-frontmatter": {}
+    }
+  },
+  "@comment options": [
+    "config provides defaults for spassr, spank, tossr and poindexter.",
+    "You can delete the field and this comment, if you use neither."
+  ],
+  "appConfig": {
+    "port": 5000,
+    "assetsDir": "static",
+    "template": "static/__app.html",
+    "distDir": "dist",
+    "buildDir": "dist/build"
+  },
+  "ava": {
+    "verbose": true
   },
   "dependencies": {
-    "d3": "^6.5.0",
-    "global": "^4.4.0",
-    "sirv-cli": "^1.0.0",
-    "socket.io-client": "^3.1.0",
-    "tone": "^14.7.58"
+    "d3": "^6.7.0",
+    "socket.io-client": "^4.0.1",
+    "svelte-range-slider-pips": "^1.7.0",
+    "tone": "^14.7.77"
   }
 }
